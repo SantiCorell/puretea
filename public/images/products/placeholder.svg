@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400" fill="none">
+  <rect width="400" height="400" fill="#D8D3C5"/>
+  <path d="M200 140v120M140 200h120" stroke="#3A6B5C" stroke-width="2" stroke-linecap="round"/>
+  <text x="200" y="290" text-anchor="middle" font-family="sans-serif" font-size="14" fill="#0F2E23">PureTea</text>
+</svg>

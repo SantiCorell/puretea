@@ -1,0 +1,120 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --puretea-dark: #0F2E23;
+  --puretea-cream: #F5F3EC;
+  --puretea-organic: #3A6B5C;
+  --puretea-sand: #D8D3C5;
+  --puretea-gold: #B8A060;
+}
+
+body {
+  @apply bg-puretea-cream text-puretea-dark font-satoshi antialiased;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* Hero: Ken Burns (zoom + pan suave) — sensación de video, carga al instante */
+@keyframes hero-kenburns {
+  0% {
+    transform: scale(1.05) translate(0, 0);
+  }
+  50% {
+    transform: scale(1.12) translate(-1.5%, -0.5%);
+  }
+  100% {
+    transform: scale(1.06) translate(1%, 0.5%);
+  }
+}
+
+.animate-hero-kenburns {
+  animation: hero-kenburns 25s ease-in-out infinite;
+}
+
+/* Banner superior: marquee infinito tipo Huel */
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 30s linear infinite;
+}
+
+@keyframes review-fade {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-review-fade {
+  animation: review-fade 0.5s ease-out;
+}
+
+@keyframes faq-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-faq-in {
+  animation: faq-in 0.3s ease-out;
+}
+
+/* Cómo preparar: flujo horizontal tipo proceso, flechas que alternan y animan */
+.brew-flow {
+  @apply w-full;
+}
+
+.brew-steps-cards {
+  @apply gap-6 lg:gap-4;
+}
+
+.brew-step-card-wrapper {
+  @apply gap-4 lg:gap-2;
+}
+
+.brew-step-card {
+  @apply rounded-2xl border border-puretea-sand/70 bg-white px-5 py-4 shadow-sm transition-all duration-300 hover:border-puretea-organic/50 hover:shadow-md lg:min-w-0 lg:max-w-[220px];
+}
+
+.brew-arrow-connector {
+  @apply flex items-center justify-center shrink-0 py-2 lg:py-0 lg:px-1;
+  animation: brew-arrow-pulse 2s ease-in-out infinite;
+}
+
+.brew-arrow-connector.brew-arrow--alt {
+  animation: brew-arrow-pulse 2s ease-in-out infinite;
+  animation-direction: reverse;
+}
+
+@keyframes brew-arrow-pulse {
+  0%, 100% {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: translateX(4px) scale(1.1);
+    opacity: 0.85;
+  }
+}
