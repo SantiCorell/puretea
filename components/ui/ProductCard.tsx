@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import Link from "next/link";
 import Image from "next/image";
 import type { Product } from "@/lib/data";
@@ -72,3 +73,60 @@ export function ProductCard({ product, productPageBase = "/product" }: ProductCa
     </Link>
   );
 }
+=======
+import Image from "next/image";
+import Link from "next/link";
+import type { Product } from "@/lib/data";
+import { QuickAdd } from "./QuickAdd"; // Import the fixed component
+
+interface ProductCardProps {
+  product: Product;
+  productPageBase?: string;
+  shopifyDomain?: string;
+}
+
+export function ProductCard({ 
+  product, 
+  productPageBase = "/product", 
+  shopifyDomain 
+}: ProductCardProps) {
+  const variant = product.variants[0];
+  const price = variant?.price;
+
+  return (
+    <div className="group flex flex-col bg-white rounded-2xl overflow-hidden border border-puretea-sand hover:shadow-md transition-all h-full">
+      {/* 1. The Link for Image and Title */}
+      <Link href={`${productPageBase}/${product.handle}`} className="flex-1">
+        <div className="aspect-square relative overflow-hidden bg-puretea-cream">
+          <Image
+            src={product.featuredImage?.url ?? "/images/products/placeholder.svg"}
+            alt={product.title}
+            fill
+            className="object-cover group-hover:scale-105 transition-transform duration-500"
+            sizes="(max-width: 768px) 50vw, 25vw"
+          />
+        </div>
+        <div className="p-4">
+          <h3 className="font-canela text-puretea-dark font-semibold group-hover:text-puretea-organic transition-colors">
+            {product.title}
+          </h3>
+          <p className="mt-1 text-sm font-bold text-puretea-dark">
+            {price ? `${parseFloat(price.amount).toFixed(2)} ${price.currencyCode}` : "0.00 €"}
+          </p>
+        </div>
+      </Link>
+
+      {/* 2. The QuickAdd Section (Outside the Link) */}
+      <div className="px-4 pb-4">
+        {shopifyDomain && variant?.id ? (
+          <QuickAdd variantId={variant.id} domain={shopifyDomain} />
+        ) : (
+          <div className="h-20 flex items-center justify-center text-[10px] text-red-400">
+            Check Shopify Config
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+>>>>>>> 0ca79a1 (feat: implement temu-style quick buy and quantity selectors)

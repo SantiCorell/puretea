@@ -9,6 +9,11 @@ import { CTASection } from "@/components/ui/CTASection";
 import { HomeFAQ } from "@/components/home/HomeFAQ";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 import { organizationSchema, websiteSchema, faqSchema } from "@/lib/seo/schema";
+<<<<<<< HEAD
+=======
+// 1. Import the Debug Tool
+import ShopifyDebug from "@/components/ShopifyDebug";
+>>>>>>> 0ca79a1 (feat: implement temu-style quick buy and quantity selectors)
 
 const HOME_FAQ = [
   {
@@ -97,6 +102,15 @@ export default async function HomePage() {
         buttonLabel="Ver tienda"
         buttonHref="/shop"
       />
+<<<<<<< HEAD
     </>
   );
 }
+=======
+      
+      {/* 2. Add the Debug Tool at the very end */}
+      <ShopifyDebug />
+    </>
+  );
+}
+>>>>>>> 0ca79a1 (feat: implement temu-style quick buy and quantity selectors)

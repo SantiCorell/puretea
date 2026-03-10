@@ -6,8 +6,13 @@ import { Footer } from "@/components/layout/Footer";
 import { fontSatoshi, fontCanela } from "@/lib/fonts";
 import { getCollections } from "@/lib/data";
 
+// NEW: Import the Cart Logic and the Sidebar UI
+import { CartProvider } from "@/context/CartContext";
+import CartDrawer from "@/components/cart/CartDrawer";
+import ShopifyDebug from "@/components/ShopifyDebug";
+
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://puretea.com"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://puretea.es"),
   title: {
     default: "PureTea | Premium Tea & Wellness",
     template: "%s | PureTea",
@@ -52,13 +57,24 @@ export default async function RootLayout({
   return (
     <html
       lang="es"
-      className={`${fontSatoshi.variable} ${fontCanela.variable}`}
+      className={`${fontSatoshi.variable} ${fontCanela.variable} scroll-smooth`}
     >
-      <body className="min-h-screen flex flex-col">
-        <TopBanner />
-        <Navbar collections={collections} />
-        <main className="flex-1">{children}</main>
-        <Footer />
+      <body className="min-h-screen flex flex-col bg-[#fdfcf9] antialiased">
+        {/* The Provider wraps everything so the "Add to Cart" buttons work everywhere */}
+        <CartProvider>
+          <TopBanner />
+          <Navbar collections={collections} />
+          
+          <main className="flex-1">
+            {children}
+          </main>
+          
+          <Footer />
+
+          {/* The Hidden Elements */}
+          <CartDrawer />
+          <ShopifyDebug />
+        </CartProvider>
       </body>
     </html>
   );

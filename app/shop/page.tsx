@@ -13,6 +13,11 @@ export async function generateMetadata() {
 
 export default async function ShopPage() {
   let products: Awaited<ReturnType<typeof getProducts>>["products"] = [];
+<<<<<<< HEAD
+=======
+  const shopifyDomain = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN || "";
+
+>>>>>>> 0ca79a1 (feat: implement temu-style quick buy and quantity selectors)
   try {
     const result = await getProducts({ first: 48 });
     products = result.products;
@@ -30,14 +35,27 @@ export default async function ShopPage() {
           Té premium para cada momento. Matcha, tés verdes, negros e infusiones.
         </p>
       </header>
+<<<<<<< HEAD
+=======
+
+>>>>>>> 0ca79a1 (feat: implement temu-style quick buy and quantity selectors)
       {products.length === 0 ? (
         <EmptyState
           title="No hay datos por el momento"
           message="Estamos preparando nuevos productos. Vuelve pronto."
         />
       ) : (
+<<<<<<< HEAD
         <ProductGrid products={products} />
       )}
     </div>
   );
 }
+=======
+        /* Passing the domain to the grid so it can handle quick-add links */
+        <ProductGrid products={products} shopifyDomain={shopifyDomain} />
+      )}
+    </div>
+  );
+}
+>>>>>>> 0ca79a1 (feat: implement temu-style quick buy and quantity selectors)
