@@ -2,6 +2,14 @@
 import { useCart } from '@/context/CartContext';
 import Image from 'next/image';
 
+interface CartItem {
+  id: string;
+  title: string;
+  price: string;
+  image: string;
+  quantity: number;
+}
+
 export default function CartDrawer() {
   const { cart, isOpen, setIsOpen, removeFromCart, totalPrice, addToCart } = useCart();
 
@@ -10,12 +18,12 @@ export default function CartDrawer() {
   const remaining = Math.max(0, FREE_SHIPPING_THRESHOLD - totalPrice);
   const progressPercentage = Math.min(100, (totalPrice / FREE_SHIPPING_THRESHOLD) * 100);
 
-  // Mock Recommended Product (Can be replaced with dynamic data later)
-  const recommendedProduct = {
+  // Mock Recommended Product 
+  const recommendedProduct: CartItem = {
     id: 'gid://shopify/ProductVariant/upsell-1',
     title: 'Batidor de Bambú',
     price: '15.00',
-    image: '/images/products/whisk.jpg', // Ensure you have a placeholder
+    image: '/images/products/placeholder.svg', 
     quantity: 1
   };
 
@@ -47,7 +55,7 @@ export default function CartDrawer() {
               </p>
               <span className="text-[10px] text-puretea-organic font-bold">{Math.round(progressPercentage)}%</span>
             </div>
-            <div className="h-1.5 w-full bg-puretea-sand rounded-full overflow-hidden">
+            <div className="h-1.5 w-full bg-puretea-sand rounded-full overflow-hidden border border-puretea-sand/10">
               <div 
                 className="h-full bg-puretea-organic transition-all duration-700 ease-out"
                 style={{ width: `${progressPercentage}%` }}
@@ -71,7 +79,7 @@ export default function CartDrawer() {
             <>
               {/* Cart Items List */}
               <div className="space-y-6">
-                {cart.map((item: any) => (
+                {cart.map((item: CartItem) => (
                   <div key={item.id} className="flex gap-4 items-center animate-in fade-in slide-in-from-bottom-2">
                     <div className="w-20 h-20 bg-puretea-cream rounded-xl relative overflow-hidden border border-puretea-sand flex-shrink-0">
                       <Image src={item.image} alt={item.title} fill className="object-cover" />
@@ -85,6 +93,7 @@ export default function CartDrawer() {
                     <button 
                       onClick={() => removeFromCart(item.id)}
                       className="p-2 text-red-300 hover:text-red-500 transition-colors"
+                      aria-label="Remove item"
                     >
                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -94,12 +103,12 @@ export default function CartDrawer() {
                 ))}
               </div>
 
-              {/* NEW: Upsell / Recommended Section */}
+              {/* Upsell / Recommended Section */}
               <div className="mt-10 pt-8 border-t border-puretea-sand/40">
                 <p className="text-xs font-bold text-puretea-dark uppercase tracking-widest mb-4">Completa tu Ritual</p>
-                <div className="bg-white rounded-2xl p-4 border border-puretea-sand flex items-center gap-4 shadow-sm">
-                  <div className="w-14 h-14 bg-puretea-cream rounded-lg relative overflow-hidden flex-shrink-0">
-                    <div className="absolute inset-0 bg-puretea-dark/5" /> {/* Placeholder look */}
+                <div className="bg-white rounded-2xl p-4 border border-puretea-sand flex items-center gap-4 shadow-sm hover:shadow-md transition-shadow">
+                  <div className="w-14 h-14 bg-puretea-cream rounded-lg relative overflow-hidden flex-shrink-0 border border-puretea-sand/30">
+                     <div className="absolute inset-0 bg-puretea-dark/5" />
                   </div>
                   <div className="flex-1">
                     <p className="text-xs font-bold text-puretea-dark">{recommendedProduct.title}</p>
@@ -107,7 +116,7 @@ export default function CartDrawer() {
                   </div>
                   <button 
                     onClick={() => addToCart(recommendedProduct)}
-                    className="bg-puretea-dark text-puretea-cream text-[10px] px-4 py-2 rounded-full font-bold hover:bg-puretea-organic transition-colors"
+                    className="bg-puretea-dark text-puretea-cream text-[10px] px-4 py-2 rounded-full font-bold hover:bg-puretea-organic transition-colors active:scale-95"
                   >
                     + Añadir
                   </button>
@@ -120,14 +129,14 @@ export default function CartDrawer() {
         {cart.length > 0 && (
           <div className="p-6 border-t border-puretea-sand bg-white space-y-4">
             <div className="flex justify-between items-center px-2">
-              <span className="text-puretea-dark/60 font-medium">Subtotal</span>
+              <span className="text-puretea-dark/60 font-medium text-sm">Subtotal</span>
               <span className="text-xl font-bold text-puretea-dark">{totalPrice.toFixed(2)}€</span>
             </div>
             <button 
               className="w-full bg-puretea-dark text-puretea-cream py-4 rounded-full font-bold hover:bg-puretea-organic transition-all shadow-lg active:scale-95"
               onClick={() => {
                 const shopifyDomain = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
-                const cartString = cart.map((item: any) => {
+                const cartString = cart.map((item: CartItem) => {
                   const cleanId = item.id.split('/').pop();
                   return `${cleanId}:${item.quantity}`;
                 }).join(',');
