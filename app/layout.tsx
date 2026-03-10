@@ -52,6 +52,7 @@ export default async function RootLayout({
   } catch {
     collections = FALLBACK_COLLECTIONS;
   }
+  
   if (collections.length === 0) collections = FALLBACK_COLLECTIONS;
 
   return (
@@ -71,7 +72,7 @@ export default async function RootLayout({
           
           <Footer />
 
-          {/* The Hidden Elements */}
+          {/* Overlay components (Rendered outside main flow) */}
           <CartDrawer />
           <ShopifyDebug />
         </CartProvider>

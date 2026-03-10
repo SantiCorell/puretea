@@ -6,12 +6,7 @@ interface ProductGridProps {
   columns?: 2 | 3 | 4;
   /** Base path for product links, e.g. /products for /products/[handle] */
   productPageBase?: string;
-<<<<<<< HEAD
-}
-
-export function ProductGrid({ products, columns = 4, productPageBase }: ProductGridProps) {
-=======
-  // Add the domain prop here
+  /** Shopify domain for the quick-add functionality */
   shopifyDomain?: string;
 }
 
@@ -21,7 +16,15 @@ export function ProductGrid({
   productPageBase,
   shopifyDomain 
 }: ProductGridProps) {
->>>>>>> 0ca79a1 (feat: implement temu-style quick buy and quantity selectors)
+  
+  if (!products?.length) {
+    return (
+      <div className="py-20 text-center">
+        <p className="text-puretea-dark/40 font-medium italic">No se encontraron productos.</p>
+      </div>
+    );
+  }
+
   return (
     <div
       className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
@@ -29,21 +32,13 @@ export function ProductGrid({
     >
       {products.map((product) => (
         <div key={product.id} role="listitem">
-<<<<<<< HEAD
-          <ProductCard product={product} productPageBase={productPageBase} />
-=======
           <ProductCard 
             product={product} 
             productPageBase={productPageBase} 
-            shopifyDomain={shopifyDomain} // Pass it down to the card
+            shopifyDomain={shopifyDomain} 
           />
->>>>>>> 0ca79a1 (feat: implement temu-style quick buy and quantity selectors)
         </div>
       ))}
     </div>
   );
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 0ca79a1 (feat: implement temu-style quick buy and quantity selectors)
