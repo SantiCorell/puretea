@@ -3,17 +3,21 @@ import { ProductGrid } from "@/components/ui/ProductGrid";
 import { EmptyState } from "@/components/ui/EmptyState";
 
 export const metadata = {
-  title: "Productos",
+  title: "Productos | PureTea",
   description:
     "Té premium PureTea: matcha, té verde, té negro, infusiones y blends de bienestar. Envíos a toda Europa.",
 };
 
 export default async function ProductsPage() {
-  let products: Awaited<ReturnType<typeof getProducts>>["products"] = [];
+  // Using a more flexible type for the build process
+  let products: any[] = [];
+  const shopifyDomain = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN || "";
+
   try {
     const result = await getProducts({ first: 48 });
-    products = result.products;
-  } catch {
+    products = result?.products || [];
+  } catch (error) {
+    console.error("Error fetching products:", error);
     products = [];
   }
 
@@ -30,11 +34,15 @@ export default async function ProductsPage() {
 
       {products.length === 0 ? (
         <EmptyState
-          title="No hay datos por el momento"
-          message="Estamos preparando nuevos productos. Vuelve pronto."
+          title="No hay productos por el momento"
+          message="Estamos preparando nuevos rituales para ti. Vuelve pronto."
         />
       ) : (
-        <ProductGrid products={products} productPageBase="/products" />
+        <ProductGrid 
+          products={products} 
+          productPageBase="/product" 
+          shopifyDomain={shopifyDomain}
+        />
       )}
     </div>
   );
