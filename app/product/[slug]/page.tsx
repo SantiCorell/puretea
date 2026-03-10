@@ -5,10 +5,7 @@ import { getProductByHandle, getProducts } from "@/lib/data";
 import { FAQ, type FAQItem } from "@/components/ui/FAQ";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 import { productSchema } from "@/lib/seo/schema";
-<<<<<<< HEAD
-=======
 import AddToCartSection from "@/components/product/AddToCartSection";
->>>>>>> 0ca79a1 (feat: implement temu-style quick buy and quantity selectors)
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -81,57 +78,25 @@ export default async function ProductPage({ params }: PageProps) {
       />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
         <nav className="mb-8 text-sm text-puretea-dark/70" aria-label="Breadcrumb">
-<<<<<<< HEAD
-          <ol className="flex flex-wrap gap-2">
-            <li><Link href="/shop" className="hover:text-puretea-organic">Tienda</Link></li>
-            <li aria-hidden>/</li>
-=======
           <ol className="flex flex-wrap gap-2 font-medium">
             <li><Link href="/shop" className="hover:text-puretea-organic transition-colors">Tienda</Link></li>
             <li aria-hidden className="opacity-40">/</li>
->>>>>>> 0ca79a1 (feat: implement temu-style quick buy and quantity selectors)
             <li className="text-puretea-dark">{product.title}</li>
           </ol>
         </nav>
 
-<<<<<<< HEAD
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
-          <div className="aspect-square relative rounded-2xl overflow-hidden bg-puretea-cream">
-=======
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start">
-          {/* Product Image Section */}
           <div className="aspect-square relative rounded-2xl overflow-hidden bg-puretea-cream border border-puretea-sand shadow-sm">
->>>>>>> 0ca79a1 (feat: implement temu-style quick buy and quantity selectors)
             <Image
               src={mainImage}
               alt={product.featuredImage?.altText ?? product.title}
               fill
-<<<<<<< HEAD
-              className="object-cover"
-=======
               className="object-cover hover:scale-105 transition-transform duration-700"
->>>>>>> 0ca79a1 (feat: implement temu-style quick buy and quantity selectors)
               sizes="(max-width: 1024px) 100vw, 50vw"
               priority
             />
           </div>
 
-<<<<<<< HEAD
-          <div>
-            <p className="text-xs uppercase tracking-wide text-puretea-organic font-medium">
-              {product.productType}
-            </p>
-            <h1 className="mt-2 font-canela text-3xl sm:text-4xl text-puretea-dark">
-              {product.title}
-            </h1>
-            <div className="mt-4 flex items-center gap-2">
-              <span className="text-2xl font-semibold text-puretea-dark">
-                {price ? formatPrice(price.amount, price.currencyCode) : "—"}
-              </span>
-              {variant?.compareAtPrice && (
-                <span className="text-lg text-puretea-dark/60 line-through">
-=======
-          {/* Product Info Section */}
           <div className="flex flex-col">
             <p className="text-xs uppercase tracking-[0.2em] text-puretea-organic font-bold">
               {product.productType || "Wellness"}
@@ -146,34 +111,16 @@ export default async function ProductPage({ params }: PageProps) {
               </span>
               {variant?.compareAtPrice && (
                 <span className="text-xl text-puretea-dark/40 line-through decoration-puretea-organic/30">
->>>>>>> 0ca79a1 (feat: implement temu-style quick buy and quantity selectors)
                   {formatPrice(variant.compareAtPrice.amount, variant.compareAtPrice.currencyCode)}
                 </span>
               )}
             </div>
 
             <div
-<<<<<<< HEAD
-              className="mt-6 text-puretea-dark/80 prose prose-neutral max-w-none"
-              dangerouslySetInnerHTML={{ __html: product.descriptionHtml ?? product.description }}
-            />
-
-            <div className="mt-8">
-              <Link
-                href="/shop"
-                className="inline-flex items-center justify-center rounded-full bg-puretea-dark text-puretea-cream px-8 py-4 text-base font-semibold hover:bg-puretea-organic transition-colors min-h-[52px] w-full sm:w-auto"
-              >
-                Comprar en la tienda
-              </Link>
-              <p className="mt-3 text-sm text-puretea-dark/70">
-                El checkout y el pago se realizan de forma segura en Shopify.
-              </p>
-=======
               className="mt-8 text-puretea-dark/80 prose prose-neutral max-w-none leading-relaxed"
               dangerouslySetInnerHTML={{ __html: product.descriptionHtml ?? product.description }}
             />
 
-            {/* TEMU-STYLE ADD TO CART SECTION */}
             <div className="mt-10 pt-8 border-t border-puretea-sand">
               <AddToCartSection 
                 variantId={variant?.id || ""} 
@@ -188,21 +135,10 @@ export default async function ProductPage({ params }: PageProps) {
                 </svg>
                 <span>Transacción encriptada y pago seguro gestionado por Shopify</span>
               </div>
->>>>>>> 0ca79a1 (feat: implement temu-style quick buy and quantity selectors)
             </div>
           </div>
         </div>
 
-<<<<<<< HEAD
-        <FAQ items={faqItems} title="Preguntas frecuentes" />
-
-        {related.length > 0 && (
-          <section className="mt-16 pt-16 border-t border-puretea-sand" aria-labelledby="related-heading">
-            <h2 id="related-heading" className="font-canela text-2xl text-puretea-dark mb-8">
-              También te puede interesar
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-=======
         <div className="mt-20">
           <FAQ items={faqItems} title="Ritual de preparación" />
         </div>
@@ -213,35 +149,17 @@ export default async function ProductPage({ params }: PageProps) {
               Completa tu ritual
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
->>>>>>> 0ca79a1 (feat: implement temu-style quick buy and quantity selectors)
               {related.map((p) => (
                 <Link
                   key={p.id}
                   href={`/product/${p.handle}`}
-<<<<<<< HEAD
-                  className="group block rounded-2xl overflow-hidden border border-puretea-sand hover:border-puretea-organic"
-                >
-                  <div className="aspect-square relative">
-=======
                   className="group block rounded-2xl overflow-hidden border border-puretea-sand bg-white hover:border-puretea-organic transition-all duration-300 hover:shadow-md"
                 >
                   <div className="aspect-square relative overflow-hidden">
->>>>>>> 0ca79a1 (feat: implement temu-style quick buy and quantity selectors)
                     <Image
                       src={p.featuredImage?.url ?? "/images/products/placeholder.svg"}
                       alt={p.title}
                       fill
-<<<<<<< HEAD
-                      className="object-cover group-hover:scale-105 transition-transform"
-                      sizes="25vw"
-                    />
-                  </div>
-                  <div className="p-4">
-                    <h3 className="font-canela font-semibold text-puretea-dark group-hover:text-puretea-organic">
-                      {p.title}
-                    </h3>
-                    <p className="mt-1 text-sm font-semibold text-puretea-dark">
-=======
                       className="object-cover group-hover:scale-110 transition-transform duration-500"
                       sizes="25vw"
                     />
@@ -251,7 +169,6 @@ export default async function ProductPage({ params }: PageProps) {
                       {p.title}
                     </h3>
                     <p className="mt-2 text-base font-bold text-puretea-dark">
->>>>>>> 0ca79a1 (feat: implement temu-style quick buy and quantity selectors)
                       {p.variants[0]?.price
                         ? formatPrice(p.variants[0].price.amount, p.variants[0].price.currencyCode)
                         : "—"}
@@ -265,8 +182,4 @@ export default async function ProductPage({ params }: PageProps) {
       </div>
     </>
   );
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 0ca79a1 (feat: implement temu-style quick buy and quantity selectors)
