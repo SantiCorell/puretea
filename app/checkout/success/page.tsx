@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 
 const REDIRECT_SECONDS = 10;
 
-export default function CheckoutSuccessPage() {
+function SuccessContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [cleared, setCleared] = useState(false);
@@ -17,6 +17,7 @@ export default function CheckoutSuccessPage() {
 
   useEffect(() => {
     if (cleared) return;
+    // Clearing local cart state if needed
     fetch("/api/cart", { method: "DELETE" }).catch(() => {}).finally(() => setCleared(true));
   }, [cleared]);
 
@@ -75,5 +76,18 @@ export default function CheckoutSuccessPage() {
         Volver al inicio
       </Link>
     </div>
+  );
+}
+
+export default function CheckoutSuccessPage() {
+  return (
+    // Suspense prevents the build from failing due to useSearchParams()
+    <Suspense fallback={
+      <div className="max-w-xl mx-auto py-24 text-center">
+        <p className="text-puretea-dark/60 animate-pulse">Cargando detalles de tu ritual...</p>
+      </div>
+    }>
+      <SuccessContent />
+    </Suspense>
   );
 }
