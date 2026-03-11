@@ -18,7 +18,7 @@ export default function CartDrawer() {
   const progressPercentage = Math.min(100, (totalPrice / FREE_SHIPPING_THRESHOLD) * 100);
 
   const recommendedProduct: CartItem = {
-    id: 'gid://shopify/ProductVariant/47852134567890', // Use a real variant ID for testing if possible
+    id: 'gid://shopify/ProductVariant/47852134567890',
     title: 'Batidor de Bambú',
     price: '15.00',
     image: '/images/products/placeholder.svg', 
@@ -28,25 +28,26 @@ export default function CartDrawer() {
   if (!isOpen) return null;
 
   const handleCheckout = (e: React.MouseEvent) => {
-    // Prevent any default button behavior that might trigger a form submission or reload
     e.preventDefault();
     e.stopPropagation();
 
-    // 1. HARDCODED FALLBACK: This ensures that even if process.env fails on mobile, the link works.
-    const shopifyDomain = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN || 'puretea-5911.myshopify.com';
+    // 1. FORCE THE DOMAIN: Using the direct Shopify address to bypass Vercel 404s
+    const shopifyDomain = 'puretea-5911.myshopify.com';
     
-    // 2. Build the Permalink with strict ID cleaning
+    // 2. Build the item string with cleaned IDs
     const cartString = cart.map((item: CartItem) => {
       const cleanId = item.id.includes('/') ? item.id.split('/').pop() : item.id;
       return `${cleanId}:${item.quantity}`;
     }).join(',');
 
-    // 3. THE 404 KILLER: Create a fully qualified absolute URL
-    // Adding a timestamp (?v=) forces the browser to bypass any cached 404 pages
+    // 3. THE 404 KILLER: Construct a fully qualified absolute Shopify URL
+    // We bypass 'puretea.es/cart' entirely and jump to Shopify's checkout engine
     const checkoutUrl = `https://${shopifyDomain}/cart/${cartString}?v=${Date.now()}`;
     
-    // Redirect using replace to prevent the user from hitting "back" into a 404
-    window.location.replace(checkoutUrl);
+    console.log("Redirecting to Shopify Checkout:", checkoutUrl);
+    
+    // Force the browser to leave the Next.js app
+    window.location.href = checkoutUrl;
   };
 
   return (
@@ -97,7 +98,6 @@ export default function CartDrawer() {
             </div>
           ) : (
             <>
-              {/* Cart Items List */}
               <div className="space-y-6">
                 {cart.map((item: CartItem) => (
                   <div key={item.id} className="flex gap-4 items-center">
@@ -122,7 +122,6 @@ export default function CartDrawer() {
                 ))}
               </div>
 
-              {/* Upsell / Recommended Section */}
               <div className="mt-10 pt-8 border-t border-puretea-sand/40">
                 <p className="text-xs font-bold text-puretea-dark uppercase tracking-widest mb-4">Completa tu Ritual</p>
                 <div className="bg-white rounded-2xl p-4 border border-puretea-sand flex items-center gap-4 shadow-sm">
@@ -143,7 +142,6 @@ export default function CartDrawer() {
           )}
         </div>
 
-        {/* Footer with Subtotal and Checkout */}
         {cart.length > 0 && (
           <div className="p-6 border-t border-puretea-sand bg-white space-y-4">
             <div className="flex justify-between items-center px-2">
