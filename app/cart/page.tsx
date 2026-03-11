@@ -1,3 +1,4 @@
+import { Suspense } from "react"; // 1. Add this import
 import { CartView } from "./CartView";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 
@@ -8,5 +9,10 @@ export const metadata = buildPageMetadata({
 });
 
 export default function CartPage() {
-  return <CartView />;
+  return (
+    // 2. Wrap your view in Suspense
+    <Suspense fallback={<div className="min-h-screen bg-puretea-cream animate-pulse" />}>
+      <CartView />
+    </Suspense>
+  );
 }
