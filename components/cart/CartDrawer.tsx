@@ -31,22 +31,23 @@ export default function CartDrawer() {
     e.preventDefault();
     e.stopPropagation();
 
-    // 1. FORCE THE DOMAIN: Using the direct Shopify address to bypass Vercel 404s
+    // 1. FORCE THE ABSOLUTE DOMAIN
+    // Using the direct .myshopify.com domain bypasses any Vercel routing issues
     const shopifyDomain = 'puretea-5911.myshopify.com';
     
-    // 2. Build the item string with cleaned IDs
+    // 2. Build the item string with cleaned numerical IDs
     const cartString = cart.map((item: CartItem) => {
       const cleanId = item.id.includes('/') ? item.id.split('/').pop() : item.id;
       return `${cleanId}:${item.quantity}`;
     }).join(',');
 
-    // 3. THE 404 KILLER: Construct a fully qualified absolute Shopify URL
-    // We bypass 'puretea.es/cart' entirely and jump to Shopify's checkout engine
+    // 3. CONSTRUCT ABSOLUTE URL
+    // Starting with https:// is mandatory to force the browser to leave the current site
     const checkoutUrl = `https://${shopifyDomain}/cart/${cartString}?v=${Date.now()}`;
     
-    console.log("Redirecting to Shopify Checkout:", checkoutUrl);
+    console.log("Jumping to Shopify Checkout:", checkoutUrl);
     
-    // Force the browser to leave the Next.js app
+    // 4. PERFORM REDIRECT
     window.location.href = checkoutUrl;
   };
 
