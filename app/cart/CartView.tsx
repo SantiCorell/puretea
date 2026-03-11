@@ -12,7 +12,7 @@ function formatPrice(amount: string, currency: string): string {
       currency: currency || "EUR",
     }).format(parseFloat(amount));
   } catch (e) {
-    return `${amount} €`; // Fallback for hydration safety
+    return `${amount} €`;
   }
 }
 
@@ -75,14 +75,13 @@ export function CartView() {
     
     setCheckoutLoading(true);
     
-    // THE 404/EMPTY CHECKOUT FIX:
-    // If shopify hasn't returned a checkoutUrl, we manually construct a fallback permalink
     if (cart.checkoutUrl) {
       window.location.href = cart.checkoutUrl;
     } else {
       const shopifyDomain = 'puretea-5911.myshopify.com';
       const cartString = cart.lines.map(line => {
-        const id = line.merchandiseId.split('/').pop();
+        // FIXED: Using lowercase 'l' for merchandiseld to match your schema
+        const id = line.merchandiseld.split('/').pop();
         return `${id}:${line.quantity}`;
       }).join(',');
       window.location.href = `https://${shopifyDomain}/cart/${cartString}`;
@@ -137,10 +136,10 @@ export function CartView() {
         {cart.lines.map((line: CartLine) => (
           <li key={line.id} className="flex gap-6 py-8">
             <div className="relative w-28 h-28 rounded-2xl overflow-hidden bg-white border border-puretea-sand/20 shrink-0 shadow-sm">
-              {line.merchandise.product.featuredImage?.url ? (
+              {line.product?.imageUrl ? (
                 <Image
-                  src={line.merchandise.product.featuredImage.url}
-                  alt={line.merchandise.product.title}
+                  src={line.product.imageUrl}
+                  alt={line.product.title}
                   fill
                   className="object-cover"
                   sizes="112px"
@@ -155,13 +154,13 @@ export function CartView() {
             <div className="flex-1 flex flex-col justify-between py-1">
               <div>
                 <Link
-                  href={`/products/${line.merchandise.product.handle}`}
+                  href={`/products/${line.product?.handle}`}
                   className="font-canela text-xl text-puretea-dark hover:text-puretea-organic transition-colors line-clamp-1"
                 >
-                  {line.merchandise.product.title}
+                  {line.product?.title}
                 </Link>
                 <p className="text-sm text-puretea-dark/60 mt-1">
-                  {formatPrice(line.cost.totalAmount.amount, line.cost.totalAmount.currencyCode)}
+                  {formatPrice(line.price.amount, line.price.currencyCode)}
                 </p>
               </div>
 
@@ -205,16 +204,6 @@ export function CartView() {
         >
           {checkoutLoading ? "Cargando Checkout..." : "Finalizar Pedido"}
         </button>
-        
-        <p className="mt-6 text-center text-xs text-puretea-dark/40 italic">
-          Envío seguro garantizado por Shopify • Pagos encriptados SSL
-        </p>
-      </div>
-
-      <div className="mt-8 text-center">
-        <Link href="/shop" className="text-puretea-dark/60 hover:text-puretea-dark text-sm font-medium transition-colors">
-          ← Volver a la tienda
-        </Link>
       </div>
     </div>
   );
