@@ -14,11 +14,16 @@ export default function CartDrawer() {
   const { cart, isOpen, setIsOpen, removeFromCart, totalPrice, addToCart } = useCart();
 
   const FREE_SHIPPING_THRESHOLD = 50;
-  const remaining = Math.max(0, FREE_SHIPPING_THRESHOLD - totalPrice);
-  const progressPercentage = Math.min(100, (totalPrice / FREE_SHIPPING_THRESHOLD) * 100);
+  
+  // Safe calculation for total price in case of string formatting issues
+  const safeTotalPrice = typeof totalPrice === 'number' ? totalPrice : 0;
+  
+  const remaining = Math.max(0, FREE_SHIPPING_THRESHOLD - safeTotalPrice);
+  const progressPercentage = Math.min(100, (safeTotalPrice / FREE_SHIPPING_THRESHOLD) * 100);
 
   const recommendedProduct: CartItem = {
-    id: 'gid://shopify/ProductVariant/47852134567890',
+    // Note: Always use the numerical ID from Shopify for permalinks
+    id: '47852134567890', 
     title: 'Batidor de Bambú',
     price: '15.00',
     image: '/images/products/placeholder.svg', 
@@ -31,21 +36,18 @@ export default function CartDrawer() {
     e.preventDefault();
     e.stopPropagation();
 
-    // 1. FORCE THE ABSOLUTE DOMAIN
-    // Using the direct .myshopify.com domain bypasses any Vercel routing issues
-    const shopifyDomain = 'puretea-5911.myshopify.com';
+    // 1. DOMAIN: Use the direct .myshopify.com domain to ensure bypass of local Vercel routes
+    const shopifyDomain = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN || 'puretea-5911.myshopify.com';
     
     // 2. Build the item string with cleaned numerical IDs
     const cartString = cart.map((item: CartItem) => {
+      // Strips 'gid://shopify/ProductVariant/' if present
       const cleanId = item.id.includes('/') ? item.id.split('/').pop() : item.id;
       return `${cleanId}:${item.quantity}`;
     }).join(',');
 
-    // 3. CONSTRUCT ABSOLUTE URL
-    // Starting with https:// is mandatory to force the browser to leave the current site
+    // 3. CONSTRUCT ABSOLUTE URL: Forces the browser to leave the Next.js app
     const checkoutUrl = `https://${shopifyDomain}/cart/${cartString}?v=${Date.now()}`;
-    
-    console.log("Jumping to Shopify Checkout:", checkoutUrl);
     
     // 4. PERFORM REDIRECT
     window.location.href = checkoutUrl;
@@ -123,9 +125,10 @@ export default function CartDrawer() {
                 ))}
               </div>
 
+              {/* Upsell Section */}
               <div className="mt-10 pt-8 border-t border-puretea-sand/40">
                 <p className="text-xs font-bold text-puretea-dark uppercase tracking-widest mb-4">Completa tu Ritual</p>
-                <div className="bg-white rounded-2xl p-4 border border-puretea-sand flex items-center gap-4 shadow-sm">
+                <div className="bg-white rounded-2xl p-4 border border-puretea-sand flex items-center gap-4 shadow-sm hover:shadow-md transition-shadow">
                   <div className="w-14 h-14 bg-puretea-cream rounded-lg relative overflow-hidden flex-shrink-0 border border-puretea-sand/30" />
                   <div className="flex-1">
                     <p className="text-xs font-bold text-puretea-dark">{recommendedProduct.title}</p>
@@ -147,7 +150,7 @@ export default function CartDrawer() {
           <div className="p-6 border-t border-puretea-sand bg-white space-y-4">
             <div className="flex justify-between items-center px-2">
               <span className="text-puretea-dark/60 font-medium text-sm">Subtotal</span>
-              <span className="text-xl font-bold text-puretea-dark">{totalPrice.toFixed(2)}€</span>
+              <span className="text-xl font-bold text-puretea-dark">{safeTotalPrice.toFixed(2)}€</span>
             </div>
             <button 
               type="button"

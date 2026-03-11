@@ -1,15 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import type { Cart, CartLine } from "@/lib/shopify/cart";
 
 function formatPrice(amount: string, currency: string): string {
-  return new Intl.NumberFormat("es-ES", {
-    style: "currency",
-    currency: currency || "EUR",
-  }).format(parseFloat(amount));
+  try {
+    return new Intl.NumberFormat("es-ES", {
+      style: "currency",
+      currency: currency || "EUR",
+    }).format(parseFloat(amount));
+  } catch (e) {
+    return `${amount} €`; // Fallback for hydration safety
+  }
 }
 
 export function CartView() {
@@ -17,10 +21,10 @@ export function CartView() {
   const [error, setError] = useState<string | null>(null);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
 
-  const fetchCart = async () => {
+  const fetchCart = useCallback(async () => {
     setError(null);
     try {
-      const res = await fetch("/api/cart");
+      const res = await fetch("/api/cart", { cache: 'no-store' });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Error al cargar el carrito");
       setCart(data.cart);
@@ -28,11 +32,11 @@ export function CartView() {
       setCart(null);
       setError(e instanceof Error ? e.message : "Error al cargar el carrito");
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchCart();
-  }, []);
+  }, [fetchCart]);
 
   const updateQuantity = async (lineId: string, quantity: number) => {
     if (!cart || typeof cart === "string") return;
@@ -67,146 +71,149 @@ export function CartView() {
   };
 
   const goToCheckout = () => {
-    if (!cart || typeof cart === "string" || !cart.checkoutUrl || cart.lines.length === 0) return;
+    if (!cart || typeof cart === "string" || !cart.lines?.length) return;
+    
     setCheckoutLoading(true);
-    window.location.href = cart.checkoutUrl;
+    
+    // THE 404/EMPTY CHECKOUT FIX:
+    // If shopify hasn't returned a checkoutUrl, we manually construct a fallback permalink
+    if (cart.checkoutUrl) {
+      window.location.href = cart.checkoutUrl;
+    } else {
+      const shopifyDomain = 'puretea-5911.myshopify.com';
+      const cartString = cart.lines.map(line => {
+        const id = line.merchandiseId.split('/').pop();
+        return `${id}:${line.quantity}`;
+      }).join(',');
+      window.location.href = `https://${shopifyDomain}/cart/${cartString}`;
+    }
   };
 
   if (cart === "loading") {
     return (
-      <div className="max-w-3xl mx-auto px-4 py-16">
-        <div className="animate-pulse space-y-4">
-          <div className="h-8 w-48 bg-puretea-sand/50 rounded" />
-          <div className="h-24 bg-puretea-sand/30 rounded" />
-          <div className="h-24 bg-puretea-sand/30 rounded" />
+      <div className="max-w-3xl mx-auto px-4 py-24">
+        <div className="animate-pulse space-y-8">
+          <div className="h-10 w-48 bg-puretea-sand/30 rounded-lg" />
+          <div className="space-y-4">
+            <div className="h-32 bg-puretea-sand/10 rounded-2xl" />
+            <div className="h-32 bg-puretea-sand/10 rounded-2xl" />
+          </div>
         </div>
       </div>
     );
   }
 
-  if (!cart || cart.lines.length === 0) {
+  if (!cart || !cart.lines || cart.lines.length === 0) {
     return (
-      <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24 text-center">
-        <h1 className="font-canela text-3xl text-puretea-dark mb-4">Tu carrito está vacío</h1>
-        <p className="text-puretea-dark/70 mb-8">
-          Añade productos desde la tienda y vuelve aquí para finalizar tu compra.
+      <div className="max-w-2xl mx-auto px-4 py-24 text-center">
+        <h1 className="font-canela text-4xl text-puretea-dark mb-6">Tu carrito está vacío</h1>
+        <p className="text-puretea-dark/60 text-lg mb-10 leading-relaxed">
+          Parece que aún no has empezado tu ritual. Explora nuestra colección de té matcha premium.
         </p>
         <Link
           href="/shop"
-          className="inline-flex justify-center rounded-full bg-puretea-dark text-puretea-cream px-6 py-3 font-semibold hover:bg-puretea-organic transition-colors"
+          className="inline-flex justify-center rounded-full bg-puretea-dark text-puretea-cream px-10 py-4 font-bold hover:bg-puretea-organic transition-all active:scale-95"
         >
-          Ir a la tienda
+          Explorar la tienda
         </Link>
       </div>
     );
   }
 
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
-      <h1 className="font-canela text-3xl text-puretea-dark mb-8">Tu carrito</h1>
+    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
+      <div className="flex justify-between items-end mb-12">
+        <h1 className="font-canela text-4xl text-puretea-dark">Tu carrito</h1>
+        <p className="text-sm text-puretea-dark/50 italic">{cart.lines.length} artículos</p>
+      </div>
 
       {error && (
-        <div className="mb-6 p-4 rounded-xl bg-red-50 text-red-800 text-sm">
-          {error}
+        <div className="mb-8 p-4 rounded-2xl bg-red-50 border border-red-100 text-red-800 text-sm flex items-center gap-3">
+          <span className="text-lg">⚠️</span> {error}
         </div>
       )}
 
-      <ul className="divide-y divide-puretea-sand/50 space-y-6 pb-8">
+      <ul className="divide-y divide-puretea-sand/30 border-t border-puretea-sand/30">
         {cart.lines.map((line: CartLine) => (
-          <li key={line.id} className="flex gap-4 py-6">
-            <div className="relative w-24 h-24 rounded-xl overflow-hidden bg-puretea-cream shrink-0">
-              {line.product.imageUrl ? (
+          <li key={line.id} className="flex gap-6 py-8">
+            <div className="relative w-28 h-28 rounded-2xl overflow-hidden bg-white border border-puretea-sand/20 shrink-0 shadow-sm">
+              {line.merchandise.product.featuredImage?.url ? (
                 <Image
-                  src={line.product.imageUrl}
-                  alt={line.product.imageAlt ?? line.product.title}
+                  src={line.merchandise.product.featuredImage.url}
+                  alt={line.merchandise.product.title}
                   fill
                   className="object-cover"
-                  sizes="96px"
+                  sizes="112px"
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center text-puretea-dark/30 text-xs">
+                <div className="w-full h-full flex items-center justify-center bg-puretea-cream/50 text-puretea-dark/20 text-xs">
                   Sin imagen
                 </div>
               )}
             </div>
-            <div className="flex-1 min-w-0">
-              <Link
-                href={`/products/${line.product.handle}`}
-                className="font-canela font-semibold text-puretea-dark hover:text-puretea-organic line-clamp-2"
-              >
-                {line.product.title}
-              </Link>
-              <p className="mt-1 text-sm text-puretea-dark/70">
-                {formatPrice(line.price.amount, line.price.currencyCode)} × {line.quantity}
-              </p>
-              <div className="mt-2 flex items-center gap-3">
-                <select
-                  value={line.quantity}
-                  onChange={(e) => updateQuantity(line.id, Number(e.target.value))}
-                  className="rounded-lg border border-puretea-sand bg-white px-2 py-1 text-sm text-puretea-dark"
+            
+            <div className="flex-1 flex flex-col justify-between py-1">
+              <div>
+                <Link
+                  href={`/products/${line.merchandise.product.handle}`}
+                  className="font-canela text-xl text-puretea-dark hover:text-puretea-organic transition-colors line-clamp-1"
                 >
-                  {Array.from({ length: 99 }, (_, i) => i + 1).map((n) => (
-                    <option key={n} value={n}>
-                      {n}
-                    </option>
-                  ))}
-                </select>
+                  {line.merchandise.product.title}
+                </Link>
+                <p className="text-sm text-puretea-dark/60 mt-1">
+                  {formatPrice(line.cost.totalAmount.amount, line.cost.totalAmount.currencyCode)}
+                </p>
+              </div>
+
+              <div className="flex items-center justify-between mt-4">
+                <div className="flex items-center gap-4 bg-white border border-puretea-sand/50 rounded-full px-3 py-1">
+                   <button onClick={() => line.quantity > 1 && updateQuantity(line.id, line.quantity - 1)} className="text-puretea-dark/40 hover:text-puretea-dark font-bold px-2">-</button>
+                   <span className="text-sm font-bold w-4 text-center">{line.quantity}</span>
+                   <button onClick={() => updateQuantity(line.id, line.quantity + 1)} className="text-puretea-dark/40 hover:text-puretea-dark font-bold px-2">+</button>
+                </div>
+                
                 <button
                   type="button"
                   onClick={() => removeLine(line.id)}
-                  className="text-sm text-puretea-dark/70 hover:text-red-600 underline"
+                  className="text-xs font-bold uppercase tracking-tighter text-red-300 hover:text-red-600 transition-colors"
                 >
                   Eliminar
                 </button>
               </div>
             </div>
-            <div className="text-right shrink-0">
-              <p className="font-semibold text-puretea-dark">
-                {formatPrice(
-                  (parseFloat(line.price.amount) * line.quantity).toFixed(2),
-                  line.price.currencyCode
-                )}
-              </p>
-            </div>
           </li>
         ))}
       </ul>
 
-      <div className="border-t border-puretea-sand pt-6 space-y-2">
-        <div className="flex justify-between text-puretea-dark/80">
-          <span>Subtotal</span>
-          <span>{formatPrice(cart.cost.subtotalAmount.amount, cart.cost.subtotalAmount.currencyCode)}</span>
-        </div>
-        {cart.cost.totalTaxAmount && parseFloat(cart.cost.totalTaxAmount.amount) > 0 && (
-          <div className="flex justify-between text-puretea-dark/80">
-            <span>Impuestos</span>
-            <span>{formatPrice(cart.cost.totalTaxAmount.amount, cart.cost.totalTaxAmount.currencyCode)}</span>
+      <div className="mt-10 p-8 rounded-3xl bg-white border border-puretea-sand/30 shadow-sm">
+        <div className="space-y-3 mb-6">
+          <div className="flex justify-between text-puretea-dark/60">
+            <span>Subtotal</span>
+            <span>{formatPrice(cart.cost.subtotalAmount.amount, cart.cost.subtotalAmount.currencyCode)}</span>
           </div>
-        )}
-        <div className="flex justify-between font-semibold text-puretea-dark text-lg pt-2">
-          <span>Total</span>
-          <span>{formatPrice(cart.cost.totalAmount.amount, cart.cost.totalAmount.currencyCode)}</span>
+          <div className="flex justify-between font-bold text-puretea-dark text-2xl pt-3 border-t border-puretea-sand/20">
+            <span>Total</span>
+            <span>{formatPrice(cart.cost.totalAmount.amount, cart.cost.totalAmount.currencyCode)}</span>
+          </div>
         </div>
-      </div>
 
-      <p className="mt-4 text-sm text-puretea-dark/70">
-        El pago y los datos de envío se completan de forma segura en el checkout de Shopify.
-      </p>
-
-      <div className="mt-8 flex flex-col sm:flex-row gap-4">
         <button
           type="button"
           onClick={goToCheckout}
           disabled={checkoutLoading}
-          className="inline-flex justify-center items-center rounded-full bg-puretea-dark text-puretea-cream px-8 py-4 font-semibold hover:bg-puretea-organic transition-colors disabled:opacity-70"
+          className="w-full bg-puretea-dark text-puretea-cream rounded-full py-5 font-bold text-lg hover:bg-puretea-organic transition-all active:scale-[0.98] shadow-xl shadow-puretea-dark/10 disabled:opacity-50"
         >
-          {checkoutLoading ? "Redirigiendo..." : "Proceder al pago"}
+          {checkoutLoading ? "Cargando Checkout..." : "Finalizar Pedido"}
         </button>
-        <Link
-          href="/shop"
-          className="inline-flex justify-center rounded-full border-2 border-puretea-dark text-puretea-dark px-8 py-4 font-semibold hover:bg-puretea-sand/30 transition-colors text-center"
-        >
-          Seguir comprando
+        
+        <p className="mt-6 text-center text-xs text-puretea-dark/40 italic">
+          Envío seguro garantizado por Shopify • Pagos encriptados SSL
+        </p>
+      </div>
+
+      <div className="mt-8 text-center">
+        <Link href="/shop" className="text-puretea-dark/60 hover:text-puretea-dark text-sm font-medium transition-colors">
+          ← Volver a la tienda
         </Link>
       </div>
     </div>
