@@ -18,7 +18,7 @@ export default function CartDrawer() {
   const progressPercentage = Math.min(100, (totalPrice / FREE_SHIPPING_THRESHOLD) * 100);
 
   const recommendedProduct: CartItem = {
-    id: 'gid://shopify/ProductVariant/upsell-1',
+    id: 'gid://shopify/ProductVariant/47852134567890', // Use a real variant ID for testing if possible
     title: 'Batidor de Bambú',
     price: '15.00',
     image: '/images/products/placeholder.svg', 
@@ -27,38 +27,44 @@ export default function CartDrawer() {
 
   if (!isOpen) return null;
 
-  const handleCheckout = () => {
-    // 1. Get Domain with a hard fallback to ensure mobile never hits a blank URL
+  const handleCheckout = (e: React.MouseEvent) => {
+    // Prevent any default button behavior that might trigger a form submission or reload
+    e.preventDefault();
+    e.stopPropagation();
+
+    // 1. HARDCODED FALLBACK: This ensures that even if process.env fails on mobile, the link works.
     const shopifyDomain = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN || 'puretea-5911.myshopify.com';
     
-    // 2. Build the Permalink
+    // 2. Build the Permalink with strict ID cleaning
     const cartString = cart.map((item: CartItem) => {
-      // Clean the ID: handles 'gid://shopify/ProductVariant/12345' or just '12345'
       const cleanId = item.id.includes('/') ? item.id.split('/').pop() : item.id;
       return `${cleanId}:${item.quantity}`;
     }).join(',');
 
-    // 3. Construct Absolute URL
-    // Using .assign() is often more reliable on mobile Safari/Chrome than .href
-    const checkoutUrl = `https://${shopifyDomain}/cart/${cartString}`;
+    // 3. THE 404 KILLER: Create a fully qualified absolute URL
+    // Adding a timestamp (?v=) forces the browser to bypass any cached 404 pages
+    const checkoutUrl = `https://${shopifyDomain}/cart/${cartString}?v=${Date.now()}`;
     
-    console.log("Redirecting to:", checkoutUrl); // Helpful for debugging via remote console
-    window.location.assign(checkoutUrl);
+    // Redirect using replace to prevent the user from hitting "back" into a 404
+    window.location.replace(checkoutUrl);
   };
 
   return (
     <div className="fixed inset-0 z-[9999] flex justify-end">
+      {/* Background Overlay */}
       <div 
         className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" 
         onClick={() => setIsOpen(false)} 
       />
       
+      {/* Sidebar Panel */}
       <div className="relative w-full max-w-md bg-[#fdfcf9] h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
         <div className="p-6 border-b border-puretea-sand flex justify-between items-center">
           <h2 className="font-canela text-2xl text-puretea-dark">Tu Ritual</h2>
           <button onClick={() => setIsOpen(false)} className="text-puretea-dark p-2 hover:scale-110 transition-transform">✕</button>
         </div>
 
+        {/* Free Shipping Progress Bar */}
         {cart.length > 0 && (
           <div className="px-6 py-4 bg-puretea-cream/30 border-b border-puretea-sand/50">
             <div className="flex justify-between items-end mb-2">
@@ -91,6 +97,7 @@ export default function CartDrawer() {
             </div>
           ) : (
             <>
+              {/* Cart Items List */}
               <div className="space-y-6">
                 {cart.map((item: CartItem) => (
                   <div key={item.id} className="flex gap-4 items-center">
@@ -115,6 +122,7 @@ export default function CartDrawer() {
                 ))}
               </div>
 
+              {/* Upsell / Recommended Section */}
               <div className="mt-10 pt-8 border-t border-puretea-sand/40">
                 <p className="text-xs font-bold text-puretea-dark uppercase tracking-widest mb-4">Completa tu Ritual</p>
                 <div className="bg-white rounded-2xl p-4 border border-puretea-sand flex items-center gap-4 shadow-sm">
@@ -135,6 +143,7 @@ export default function CartDrawer() {
           )}
         </div>
 
+        {/* Footer with Subtotal and Checkout */}
         {cart.length > 0 && (
           <div className="p-6 border-t border-puretea-sand bg-white space-y-4">
             <div className="flex justify-between items-center px-2">
@@ -142,6 +151,7 @@ export default function CartDrawer() {
               <span className="text-xl font-bold text-puretea-dark">{totalPrice.toFixed(2)}€</span>
             </div>
             <button 
+              type="button"
               className="w-full bg-puretea-dark text-puretea-cream py-4 rounded-full font-bold hover:bg-puretea-organic transition-all shadow-lg active:scale-95"
               onClick={handleCheckout}
             >

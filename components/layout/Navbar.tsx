@@ -3,15 +3,14 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
-// Import your new interactive CartButton
+// Import your interactive CartButton
 import { CartButton } from "./CartButton";
 
-/** URLs Shopify: cuenta y carrito */
-const SHOPIFY_ACCOUNT_URL =
-  process.env.NEXT_PUBLIC_SHOPIFY_ACCOUNT_URL ||
-  (process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN
-    ? `https://${process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN}/account`
-    : "/account");
+/** * LEVEL 1: Absolute Shopify Account URL
+ * We use an absolute URL to prevent Next.js from trying to find a local /account route.
+ */
+const shopifyDomain = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN || 'puretea-5911.myshopify.com';
+const SHOPIFY_ACCOUNT_URL = `https://${shopifyDomain}/account`;
 
 const NOSOTROS_LINKS = [
   { href: "/about", label: "Nosotros" },
@@ -51,8 +50,6 @@ function buildComprarLinks(collections: NavbarCollections[] | undefined) {
 
 export function Navbar({ collections }: { collections?: NavbarCollections[] }) {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [mobileComprar, setMobileComprar] = useState(false);
-  const [mobileNosotros, setMobileNosotros] = useState(false);
 
   const comprarLinks = buildComprarLinks(collections);
 
@@ -74,6 +71,7 @@ export function Navbar({ collections }: { collections?: NavbarCollections[] }) {
 
           {/* Desktop Nav */}
           <nav className="hidden lg:flex items-center gap-1" aria-label="Principal">
+            {/* Comprar Dropdown */}
             <div className="relative group">
               <button className="flex items-center gap-1.5 px-3 py-2 text-puretea-dark font-medium hover:text-puretea-organic text-sm uppercase tracking-wide rounded-lg hover:bg-puretea-sand/30 transition-colors">
                 Comprar
@@ -82,12 +80,17 @@ export function Navbar({ collections }: { collections?: NavbarCollections[] }) {
               <div className="absolute top-full left-0 pt-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150">
                 <ul className="min-w-[180px] rounded-xl border border-puretea-sand bg-white py-2 shadow-lg">
                   {comprarLinks.map(({ href, label }) => (
-                    <li key={href}><Link href={href} className="block px-4 py-2.5 text-sm text-puretea-dark hover:bg-puretea-organic/10 hover:text-puretea-organic">{label}</Link></li>
+                    <li key={href}>
+                      <Link href={href} className="block px-4 py-2.5 text-sm text-puretea-dark hover:bg-puretea-organic/10 hover:text-puretea-organic">
+                        {label}
+                      </Link>
+                    </li>
                   ))}
                 </ul>
               </div>
             </div>
 
+            {/* Nosotros Dropdown */}
             <div className="relative group">
               <button className="flex items-center gap-1.5 px-3 py-2 text-puretea-dark font-medium hover:text-puretea-organic text-sm uppercase tracking-wide rounded-lg hover:bg-puretea-sand/30 transition-colors">
                 Nosotros
@@ -96,7 +99,11 @@ export function Navbar({ collections }: { collections?: NavbarCollections[] }) {
               <div className="absolute top-full left-0 pt-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150">
                 <ul className="min-w-[160px] rounded-xl border border-puretea-sand bg-white py-2 shadow-lg">
                   {NOSOTROS_LINKS.map(({ href, label }) => (
-                    <li key={href}><Link href={href} className="block px-4 py-2.5 text-sm text-puretea-dark hover:bg-puretea-organic/10 hover:text-puretea-organic">{label}</Link></li>
+                    <li key={href}>
+                      <Link href={href} className="block px-4 py-2.5 text-sm text-puretea-dark hover:bg-puretea-organic/10 hover:text-puretea-organic">
+                        {label}
+                      </Link>
+                    </li>
                   ))}
                 </ul>
               </div>
@@ -108,11 +115,18 @@ export function Navbar({ collections }: { collections?: NavbarCollections[] }) {
 
           {/* Desktop Icons */}
           <div className="hidden lg:flex items-center gap-3">
-            <Link href="/shop" className="rounded-full bg-puretea-organic/20 text-puretea-dark px-4 py-2 text-sm font-semibold hover:bg-puretea-organic/30 transition-colors">Envíos gratis 50€</Link>
+            <span className="text-xs font-bold text-puretea-organic bg-puretea-organic/10 px-3 py-1 rounded-full">Envíos gratis 50€</span>
             
             {/* LEVEL 1: Account Icon linked to Shopify */}
-            <Link href={SHOPIFY_ACCOUNT_URL} className="p-2 text-puretea-dark hover:text-puretea-organic rounded-lg hover:bg-puretea-sand/30 transition-colors" aria-label="Mi cuenta">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+            <Link 
+              href={SHOPIFY_ACCOUNT_URL} 
+              className="p-2 text-puretea-dark hover:text-puretea-organic rounded-lg hover:bg-puretea-sand/30 transition-colors" 
+              aria-label="Mi cuenta"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
             </Link>
 
             <CartButton />
@@ -143,17 +157,25 @@ export function Navbar({ collections }: { collections?: NavbarCollections[] }) {
 
         {/* Mobile Menu Content */}
         {mobileOpen && (
-          <nav className="lg:hidden py-4 border-t border-puretea-sand/50 px-4">
-             <div className="flex flex-col gap-1">
-                <Link href="/shop" className="py-3 text-puretea-dark font-medium border-b border-puretea-sand/20" onClick={() => setMobileOpen(false)}>Comprar</Link>
-                <Link href="/about" className="py-3 text-puretea-dark font-medium border-b border-puretea-sand/20" onClick={() => setMobileOpen(false)}>Nosotros</Link>
-                <Link href="/blog" className="py-3 text-puretea-dark font-medium border-b border-puretea-sand/20" onClick={() => setMobileOpen(false)}>Blog</Link>
-                
-                {/* LEVEL 1: Mobile Account Link */}
-                <Link href={SHOPIFY_ACCOUNT_URL} className="py-3 block text-puretea-dark font-medium border-b border-puretea-sand/20" onClick={() => setMobileOpen(false)}>Mi cuenta</Link>
-                
-                <Link href="/shop" className="mt-6 inline-flex w-full justify-center rounded-full bg-puretea-dark text-puretea-cream py-4 font-semibold text-lg" onClick={() => setMobileOpen(false)}>Comprar ahora</Link>
-             </div>
+          <nav className="lg:hidden py-4 border-t border-puretea-sand/50 px-4 animate-in slide-in-from-top duration-200">
+            <div className="flex flex-col gap-1">
+              <Link href="/shop" className="py-3 text-puretea-dark font-medium border-b border-puretea-sand/20 text-sm" onClick={() => setMobileOpen(false)}>Comprar</Link>
+              <Link href="/about" className="py-3 text-puretea-dark font-medium border-b border-puretea-sand/20 text-sm" onClick={() => setMobileOpen(false)}>Nosotros</Link>
+              <Link href="/blog" className="py-3 text-puretea-dark font-medium border-b border-puretea-sand/20 text-sm" onClick={() => setMobileOpen(false)}>Blog</Link>
+              
+              {/* LEVEL 1: Mobile Account Link (Forced Absolute) */}
+              <Link 
+                href={SHOPIFY_ACCOUNT_URL} 
+                className="py-3 block text-puretea-dark font-medium border-b border-puretea-sand/20 text-sm" 
+                onClick={() => setMobileOpen(false)}
+              >
+                Mi cuenta (Shopify)
+              </Link>
+              
+              <Link href="/shop" className="mt-6 inline-flex w-full justify-center rounded-full bg-puretea-dark text-puretea-cream py-4 font-bold text-base uppercase tracking-wider" onClick={() => setMobileOpen(false)}>
+                Ver Catálogo
+              </Link>
+            </div>
           </nav>
         )}
       </div>
