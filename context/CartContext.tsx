@@ -37,6 +37,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [cart, isInitialized]);
 
   const addToCart = (item: CartItem) => {
+    // PREVENT DEFAULT BEHAVIOR: Ensure this doesn't trigger a page reload
     setCart((prev) => {
       const existing = prev.find((i) => i.id === item.id);
       if (existing) {
@@ -46,6 +47,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       }
       return [...prev, item];
     });
+    
+    // This only triggers the UI Drawer, not a URL change
     setIsOpen(true);
   };
 
@@ -62,7 +65,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   // 3. Calculate Total Price
   const totalPrice = cart.reduce((acc, item) => {
-    return acc + (parseFloat(item.price) * item.quantity);
+    const price = parseFloat(item.price.replace(/[^0-9.]/g, '')); // Clean price string
+    return acc + (isNaN(price) ? 0 : price * item.quantity);
   }, 0);
 
   // Calculate total unit count for the Navbar bubble
