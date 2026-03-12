@@ -32,6 +32,12 @@ export function AddToCartButton({
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Error al añadir");
+
+      // Notificamos al resto de la app (navbar, botón flotante, etc.)
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("puretea-cart-updated"));
+      }
+
       setDone(true);
       setTimeout(() => setDone(false), 2000);
     } catch (e) {

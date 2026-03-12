@@ -19,7 +19,36 @@ export function CategoryGrid({ categories }: CategoryGridProps) {
         <h2 id="categories-heading" className="font-canela text-3xl sm:text-4xl text-puretea-dark text-center mb-12">
           Explora por categoría
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+        {/* Mobile: carrusel horizontal de categorías */} 
+        <div className="flex gap-4 overflow-x-auto sm:hidden -mx-4 px-4 pb-2 snap-x snap-mandatory">
+          {categories.map((cat) => (
+            <Link
+              key={cat.handle}
+              href={`/category/${cat.handle}`}
+              className="group block min-w-[65%] max-w-[70%] rounded-2xl overflow-hidden bg-puretea-sand/60 border border-puretea-sand hover:border-puretea-organic transition-colors snap-start"
+            >
+              <div className="aspect-[4/5] relative bg-puretea-organic/20">
+                <Image
+                  src={cat.image}
+                  alt={cat.title}
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-300"
+                  sizes="70vw"
+                />
+              </div>
+              <div className="p-3">
+                <h3 className="font-canela text-base font-semibold text-puretea-dark group-hover:text-puretea-organic line-clamp-1">
+                  {cat.title}
+                </h3>
+                <p className="mt-1 text-xs text-puretea-dark/80 line-clamp-2">
+                  {cat.description}
+                </p>
+              </div>
+            </Link>
+          ))}
+        </div>
+        {/* Tablet / Desktop: grid clásica */}
+        <div className="hidden sm:grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
           {categories.map((cat) => (
             <Link
               key={cat.handle}
@@ -32,7 +61,7 @@ export function CategoryGrid({ categories }: CategoryGridProps) {
                   alt={cat.title}
                   fill
                   className="object-cover group-hover:scale-105 transition-transform duration-300"
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 20vw"
+                  sizes="(max-width: 1024px) 33vw, 20vw"
                 />
               </div>
               <div className="p-4">

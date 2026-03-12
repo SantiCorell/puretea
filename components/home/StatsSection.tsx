@@ -40,7 +40,23 @@ export function StatsSection() {
         <h2 id="stats-heading" className="sr-only">
           PureTea en cifras: clientes, tazas servidas y alcance
         </h2>
-        <ul className="grid grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-6 list-none">
+        {/* Mobile: carrusel horizontal tipo Temu */}
+        <ul className="flex gap-4 overflow-x-auto lg:hidden list-none -mx-4 px-4 pb-4 snap-x snap-mandatory">
+          {STATS.map((stat, i) => (
+            <li
+              key={i}
+              className="min-w-[70%] max-w-xs rounded-2xl bg-puretea-dark/90 border border-puretea-sand/40 px-5 py-6 text-center snap-start"
+            >
+              <p className="font-canela text-3xl font-semibold text-puretea-gold">
+                {stat.value}
+              </p>
+              <p className="mt-1 font-semibold text-puretea-cream">{stat.label}</p>
+              <p className="mt-1 text-sm text-puretea-sand line-clamp-2">{stat.description}</p>
+            </li>
+          ))}
+        </ul>
+        {/* Desktop: grid clásica */}
+        <ul className="hidden lg:grid lg:grid-cols-5 gap-8 lg:gap-6 list-none">
           {STATS.map((stat, i) => (
             <li key={i} className="text-center">
               <p className="font-canela text-3xl sm:text-4xl font-semibold text-puretea-gold">

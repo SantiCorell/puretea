@@ -44,7 +44,27 @@ export default async function BlogPage({
           Guías expertas sobre matcha, té verde, bienestar y ritual. Somos referentes en té premium.
         </p>
       </header>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+      {/* Mobile: carrusel horizontal de posts */}
+      <div className="-mx-4 px-4 sm:hidden">
+        <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory">
+          {posts.map((post) => (
+            <div key={post.slug} className="min-w-[75%] max-w-[80%] snap-start">
+              <BlogCard
+                post={{
+                  slug: post.slug,
+                  title: post.title,
+                  excerpt: post.excerpt,
+                  image: post.image,
+                  date: post.date,
+                  category: post.category,
+                }}
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+      {/* Tablet / Desktop: grid clásica */}
+      <div className="hidden sm:grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
         {posts.map((post) => (
           <BlogCard
             key={post.slug}

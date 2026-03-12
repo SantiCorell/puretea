@@ -26,19 +26,44 @@ export function ProductGrid({
   }
 
   return (
-    <div
-      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-      role="list"
-    >
-      {products.map((product) => (
-        <div key={product.id} role="listitem">
-          <ProductCard 
-            product={product} 
-            productPageBase={productPageBase} 
-            shopifyDomain={shopifyDomain} 
-          />
+    <>
+      {/* Mobile: carrusel horizontal tipo Temu (2x2 tarjetas visibles) */}
+      <div className="sm:hidden -mx-4 px-4">
+        <div
+          className="grid grid-rows-2 auto-cols-[48%] grid-flow-col gap-4 overflow-x-auto pb-4 snap-x snap-mandatory"
+          role="list"
+        >
+          {products.map((product) => (
+            <div
+              key={product.id}
+              role="listitem"
+              className="snap-start"
+            >
+              <ProductCard
+                product={product}
+                productPageBase={productPageBase}
+                shopifyDomain={shopifyDomain}
+              />
+            </div>
+          ))}
         </div>
-      ))}
-    </div>
+      </div>
+
+      {/* Tablet / Desktop: grid clásica */}
+      <div
+        className="hidden sm:grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+        role="list"
+      >
+        {products.map((product) => (
+          <div key={product.id} role="listitem">
+            <ProductCard 
+              product={product} 
+              productPageBase={productPageBase} 
+              shopifyDomain={shopifyDomain} 
+            />
+          </div>
+        ))}
+      </div>
+    </>
   );
 }

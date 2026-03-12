@@ -3,13 +3,9 @@ import "./globals.css";
 import { TopBanner } from "@/components/layout/TopBanner";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { FloatingCartButton } from "@/components/cart/FloatingCartButton";
 import { fontSatoshi, fontCanela } from "@/lib/fonts";
 import { getCollections } from "@/lib/data";
-
-// NEW: Import the Cart Logic and the Sidebar UI
-import { CartProvider } from "@/context/CartContext";
-import CartDrawer from "@/components/cart/CartDrawer";
-import ShopifyDebug from "@/components/ShopifyDebug";
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://puretea.es"),
@@ -52,7 +48,7 @@ export default async function RootLayout({
   } catch {
     collections = FALLBACK_COLLECTIONS;
   }
-  
+
   if (collections.length === 0) collections = FALLBACK_COLLECTIONS;
 
   return (
@@ -61,21 +57,13 @@ export default async function RootLayout({
       className={`${fontSatoshi.variable} ${fontCanela.variable} scroll-smooth`}
     >
       <body className="min-h-screen flex flex-col bg-[#fdfcf9] antialiased">
-        {/* The Provider wraps everything so the "Add to Cart" buttons work everywhere */}
-        <CartProvider>
-          <TopBanner />
-          <Navbar collections={collections} />
-          
-          <main className="flex-1">
-            {children}
-          </main>
-          
-          <Footer />
+        <TopBanner />
+        <Navbar collections={collections} />
 
-          {/* Overlay components (Rendered outside main flow) */}
-          <CartDrawer />
-          <ShopifyDebug />
-        </CartProvider>
+        <main className="flex-1">{children}</main>
+
+        <FloatingCartButton />
+        <Footer />
       </body>
     </html>
   );

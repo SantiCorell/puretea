@@ -20,7 +20,24 @@ export function BenefitsSection() {
         <h2 id="benefits-heading" className="font-canela text-3xl sm:text-4xl text-puretea-dark text-center mb-14">
           Por qué PureTea
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-10">
+        {/* Mobile: tarjetas deslizables tipo carrusel */} 
+        <div className="flex gap-4 overflow-x-auto md:hidden -mx-4 px-4 pb-2 snap-x snap-mandatory">
+          {BENEFITS.map((b) => (
+            <div
+              key={b.title}
+              className="min-w-[75%] max-w-[80%] text-center rounded-2xl bg-white px-6 py-8 shadow-sm border border-puretea-sand/50 hover:border-puretea-organic/40 hover:shadow-md transition-all duration-300 snap-start"
+            >
+              <h3 className="font-canela text-lg font-semibold text-puretea-dark">
+                {b.title}
+              </h3>
+              <p className="mt-3 text-sm text-puretea-dark/80 leading-relaxed">
+                {b.description}
+              </p>
+            </div>
+          ))}
+        </div>
+        {/* Desktop / tablet: grid clásica de tres columnas */} 
+        <div className="hidden md:grid grid-cols-3 gap-8 lg:gap-10">
           {BENEFITS.map((b) => (
             <div
               key={b.title}

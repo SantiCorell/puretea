@@ -117,7 +117,7 @@ export default async function BlogPostPage({ params }: PageProps) {
                 p ? (
                   <li key={p.id}>
                     <Link
-                      href={`/product/${p.handle}`}
+                      href={`/products/${p.handle}`}
                       className="text-puretea-organic font-medium hover:underline"
                     >
                       {p.title}

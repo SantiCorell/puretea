@@ -1,7 +1,10 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
 import type { Product } from "@/lib/data";
-import { QuickAdd } from "./QuickAdd"; 
+import { AddToCartButton } from "@/components/cart/AddToCartButton";
 
 interface ProductCardProps {
   product: Product;
@@ -17,22 +20,29 @@ function formatPrice(amount: string, currency: string): string {
   }).format(parseFloat(amount));
 }
 
-export function ProductCard({ 
-  product, 
-  productPageBase = "/product", 
-  shopifyDomain 
+export function ProductCard({
+  product,
+  productPageBase = "/product",
+  shopifyDomain,
 }: ProductCardProps) {
-  const variant = product.variants[0];
+  const [selectedVariantIndex, setSelectedVariantIndex] = useState(0);
+  const [qty, setQty] = useState(1);
+
+  const variant = product.variants[selectedVariantIndex] ?? product.variants[0];
   const price = variant?.price;
   const compareAtPrice = variant?.compareAtPrice;
   const soldOut = !variant?.availableForSale;
+  const hasMultipleVariants = product.variants.length > 1;
   const image = product.featuredImage?.url ?? "/images/products/placeholder.svg";
+
+  const handleDecrease = () => setQty((p) => (p > 1 ? p - 1 : 1));
+  const handleIncrease = () => setQty((p) => (p < 20 ? p + 1 : 20));
 
   return (
     <div className="group flex flex-col bg-white rounded-2xl overflow-hidden border border-puretea-sand hover:shadow-lg transition-all duration-300 h-full">
       {/* 1. Image and Badges Section */}
       <Link href={`${productPageBase}/${product.handle}`} className="relative block">
-        <div className="aspect-square relative overflow-hidden bg-puretea-cream">
+        <div className="aspect-[3/4] sm:aspect-square relative overflow-hidden bg-puretea-cream">
           <Image
             src={image}
             alt={product.featuredImage?.altText ?? product.title}
@@ -54,10 +64,10 @@ export function ProductCard({
       </Link>
         
       {/* 2. Content Section */}
-      <div className="p-4 flex-1 flex flex-col">
+      <div className="p-3 sm:p-4 flex-1 flex flex-col">
         <Link href={`${productPageBase}/${product.handle}`} className="flex-1">
           {/* REFINED: Star Rating */}
-          <div className="flex items-center gap-1 mb-2">
+          <div className="flex items-center gap-1 mb-1">
             <div className="flex items-center">
               {[...Array(5)].map((_, i) => (
                 <svg key={i} className={`w-3 h-3 ${i < 4 ? "text-yellow-400" : "text-puretea-sand"} fill-current`} viewBox="0 0 20 20">
@@ -71,12 +81,12 @@ export function ProductCard({
           <p className="text-[10px] uppercase tracking-widest text-puretea-organic font-bold mb-1">
             {product.productType || "Premium Tea"}
           </p>
-          <h3 className="font-canela text-lg font-semibold text-puretea-dark group-hover:text-puretea-organic transition-colors leading-tight line-clamp-2">
+          <h3 className="font-canela text-base sm:text-lg font-semibold text-puretea-dark group-hover:text-puretea-organic transition-colors leading-tight line-clamp-2">
             {product.title}
           </h3>
           
-          <div className="mt-3 flex items-baseline gap-2">
-            <span className={`text-lg font-bold ${soldOut ? "text-puretea-dark/40" : "text-puretea-dark"}`}>
+          <div className="mt-2 sm:mt-3 flex items-baseline gap-2">
+            <span className={`text-base sm:text-lg font-bold ${soldOut ? "text-puretea-dark/40" : "text-puretea-dark"}`}>
               {price ? formatPrice(price.amount, price.currencyCode) : "—"}
             </span>
             {!soldOut && compareAtPrice && parseFloat(compareAtPrice.amount) > parseFloat(price?.amount ?? "0") && (
@@ -87,13 +97,62 @@ export function ProductCard({
           </div>
         </Link>
 
-        {/* 3. Interactive Section & Trust Badges */}
-        <div className="mt-5">
+        {/* 3. CTA + trust badges */}
+        <div className="mt-4 sm:mt-5">
           {!soldOut && variant?.id ? (
             <>
-              <QuickAdd variantId={variant.id} product={product} />
-              
-              {/* Trust Badges */}
+              {hasMultipleVariants && (
+                <div className="mb-3">
+                  <span className="block text-[10px] uppercase tracking-widest text-puretea-dark/60 font-semibold mb-1.5">
+                    Formato
+                  </span>
+                  <select
+                    value={selectedVariantIndex}
+                    onChange={(e) => setSelectedVariantIndex(Number(e.target.value))}
+                    className="w-full text-xs font-medium text-puretea-dark border border-puretea-sand/60 rounded-lg bg-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-puretea-organic/50"
+                    aria-label="Elegir formato o peso"
+                  >
+                    {product.variants.map((v, i) => (
+                      <option key={v.id} value={i} disabled={!v.availableForSale}>
+                        {v.title} — {formatPrice(v.price.amount, v.price.currencyCode)}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              <div className="mb-3 flex items-center justify-between">
+                <span className="text-[10px] uppercase tracking-widest text-puretea-dark/60 font-semibold">
+                  Cantidad
+                </span>
+                <div className="inline-flex items-center gap-2 rounded-full border border-puretea-sand/60 bg-puretea-cream/40 px-2.5 py-0.5">
+                  <button
+                    type="button"
+                    onClick={handleDecrease}
+                    className="w-5 h-5 flex items-center justify-center rounded-full text-[10px] font-bold text-puretea-dark/70 hover:bg-puretea-sand/60 hover:text-puretea-dark transition-colors"
+                    aria-label="Disminuir cantidad"
+                  >
+                    -
+                  </button>
+                  <span className="min-w-[1.4rem] text-center text-xs font-semibold text-puretea-dark">
+                    {qty}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleIncrease}
+                    className="w-5 h-5 flex items-center justify-center rounded-full text-[10px] font-bold text-puretea-dark/70 hover:bg-puretea-sand/60 hover:text-puretea-dark transition-colors"
+                    aria-label="Aumentar cantidad"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+
+              <AddToCartButton
+                variantId={variant.id}
+                quantity={qty}
+                className="w-full text-puretea-cream text-[11px] uppercase tracking-widest font-bold py-2.5 sm:py-3 rounded-full transition-all text-center shadow-md active:scale-95 bg-puretea-dark hover:bg-puretea-organic"
+              />
               <div className="mt-4 flex items-center justify-between px-2 pt-3 border-t border-puretea-sand/40">
                 <div className="flex items-center gap-1.5">
                   <div className="p-1 bg-puretea-organic/10 rounded-full">
@@ -113,15 +172,11 @@ export function ProductCard({
                 </div>
               </div>
             </>
-          ) : !soldOut ? (
-            <div className="h-10 flex items-center justify-center text-[10px] text-red-400 font-bold uppercase tracking-wider bg-red-50 rounded-lg">
-              Check .env Config
-            </div>
-          ) : (
+          ) : soldOut ? (
             <div className="h-10 flex items-center justify-center text-xs text-puretea-dark/40 italic bg-puretea-sand/20 rounded-lg">
               Próximamente
             </div>
-          )}
+          ) : null}
         </div>
       </div>
     </div>
