@@ -10,78 +10,10 @@ interface CartApiResponse {
 }
 
 export function CartButton() {
-  const router = useRouter();
-  const [totalItems, setTotalItems] = useState(0);
-  const [bump, setBump] = useState(false);
-  const prevCountRef = useRef(0);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    const syncFromApi = async () => {
-      try {
-        const res = await fetch("/api/cart", { cache: "no-store" });
-        if (!res.ok) {
-          setTotalItems(0);
-          return;
-        }
-        const data = (await res.json()) as CartApiResponse;
-        const lines = data.cart?.lines ?? [];
-        const count = lines.reduce((acc, l) => acc + (l.quantity || 0), 0);
-        if (cancelled) return;
-        setTotalItems(count);
-        if (count > 0 && count !== prevCountRef.current) {
-          prevCountRef.current = count;
-          setBump(true);
-        } else {
-          prevCountRef.current = count;
-        }
-      } catch {
-        if (!cancelled) setTotalItems(0);
-      }
-    };
-
-    syncFromApi();
-    const handler = () => {
-      void syncFromApi();
-    };
-
-    if (typeof window !== "undefined") {
-      window.addEventListener("puretea-cart-updated", handler as EventListener);
-    }
-
-    return () => {
-      cancelled = true;
-      if (typeof window !== "undefined") {
-        window.removeEventListener("puretea-cart-updated", handler as EventListener);
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!bump) return;
-    const t = setTimeout(() => setBump(false), 400);
-    return () => clearTimeout(t);
-  }, [bump]);
-
-  const handleClick = async () => {
-    try {
-      const res = await fetch("/api/cart", { cache: "no-store" });
-      if (!res.ok) {
-        router.push("/cart");
-        return;
-      }
-      const data = (await res.json()) as CartApiResponse & { cart?: { checkoutUrl?: string | null } };
-      const checkoutUrl = data.cart?.checkoutUrl;
-      if (checkoutUrl) {
-        window.location.href = checkoutUrl;
-      } else {
-        router.push("/cart");
-      }
-    } catch {
-      router.push("/cart");
-    }
-  };
+  const { setIsOpen, cart } = useCart();
+  
+  // Calculate total units (e.g., 2 Matcha + 1 Green Tea = 3)
+  const totalItems = cart.reduce((acc, item) => acc + item.quantity, 0);
 
   return (
     <button 

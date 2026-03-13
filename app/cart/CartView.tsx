@@ -24,7 +24,7 @@ export function CartView() {
   const fetchCart = useCallback(async () => {
     setError(null);
     try {
-      const res = await fetch("/api/cart", { cache: 'no-store' });
+      const res = await fetch("/api/cart", { cache: "no-store" });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Error al cargar el carrito");
       setCart(data.cart);
@@ -72,19 +72,13 @@ export function CartView() {
 
   const goToCheckout = () => {
     if (!cart || typeof cart === "string" || !cart.lines?.length) return;
-    
     setCheckoutLoading(true);
-    
+
     if (cart.checkoutUrl) {
       window.location.href = cart.checkoutUrl;
     } else {
-      const shopifyDomain = 'puretea-5911.myshopify.com';
-      const cartString = cart.lines.map(line => {
-        // FIXED: Using lowercase 'l' for merchandiseld to match your schema
-        const id = line.merchandiseld.split('/').pop();
-        return `${id}:${line.quantity}`;
-      }).join(',');
-      window.location.href = `https://${shopifyDomain}/cart/${cartString}`;
+      // Safe fallback — always goes to Shopify, never routes through Next.js
+      window.location.href = "https://puretea-5911.myshopify.com/cart";
     }
   };
 
@@ -105,9 +99,12 @@ export function CartView() {
   if (!cart || !cart.lines || cart.lines.length === 0) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-24 text-center">
-        <h1 className="font-canela text-4xl text-puretea-dark mb-6">Tu carrito está vacío</h1>
+        <h1 className="font-canela text-4xl text-puretea-dark mb-6">
+          Tu carrito está vacío
+        </h1>
         <p className="text-puretea-dark/60 text-lg mb-10 leading-relaxed">
-          Parece que aún no has empezado tu ritual. Explora nuestra colección de té matcha premium.
+          Parece que aún no has empezado tu ritual. Explora nuestra colección de
+          té matcha premium.
         </p>
         <Link
           href="/shop"
@@ -123,7 +120,9 @@ export function CartView() {
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
       <div className="flex justify-between items-end mb-12">
         <h1 className="font-canela text-4xl text-puretea-dark">Tu carrito</h1>
-        <p className="text-sm text-puretea-dark/50 italic">{cart.lines.length} artículos</p>
+        <p className="text-sm text-puretea-dark/50 italic">
+          {cart.lines.length} artículos
+        </p>
       </div>
 
       {error && (
@@ -150,7 +149,7 @@ export function CartView() {
                 </div>
               )}
             </div>
-            
+
             <div className="flex-1 flex flex-col justify-between py-1">
               <div>
                 <Link
@@ -166,11 +165,26 @@ export function CartView() {
 
               <div className="flex items-center justify-between mt-4">
                 <div className="flex items-center gap-4 bg-white border border-puretea-sand/50 rounded-full px-3 py-1">
-                   <button onClick={() => line.quantity > 1 && updateQuantity(line.id, line.quantity - 1)} className="text-puretea-dark/40 hover:text-puretea-dark font-bold px-2">-</button>
-                   <span className="text-sm font-bold w-4 text-center">{line.quantity}</span>
-                   <button onClick={() => updateQuantity(line.id, line.quantity + 1)} className="text-puretea-dark/40 hover:text-puretea-dark font-bold px-2">+</button>
+                  <button
+                    onClick={() =>
+                      line.quantity > 1 &&
+                      updateQuantity(line.id, line.quantity - 1)
+                    }
+                    className="text-puretea-dark/40 hover:text-puretea-dark font-bold px-2"
+                  >
+                    -
+                  </button>
+                  <span className="text-sm font-bold w-4 text-center">
+                    {line.quantity}
+                  </span>
+                  <button
+                    onClick={() => updateQuantity(line.id, line.quantity + 1)}
+                    className="text-puretea-dark/40 hover:text-puretea-dark font-bold px-2"
+                  >
+                    +
+                  </button>
                 </div>
-                
+
                 <button
                   type="button"
                   onClick={() => removeLine(line.id)}
@@ -188,11 +202,21 @@ export function CartView() {
         <div className="space-y-3 mb-6">
           <div className="flex justify-between text-puretea-dark/60">
             <span>Subtotal</span>
-            <span>{formatPrice(cart.cost.subtotalAmount.amount, cart.cost.subtotalAmount.currencyCode)}</span>
+            <span>
+              {formatPrice(
+                cart.cost.subtotalAmount.amount,
+                cart.cost.subtotalAmount.currencyCode
+              )}
+            </span>
           </div>
           <div className="flex justify-between font-bold text-puretea-dark text-2xl pt-3 border-t border-puretea-sand/20">
             <span>Total</span>
-            <span>{formatPrice(cart.cost.totalAmount.amount, cart.cost.totalAmount.currencyCode)}</span>
+            <span>
+              {formatPrice(
+                cart.cost.totalAmount.amount,
+                cart.cost.totalAmount.currencyCode
+              )}
+            </span>
           </div>
         </div>
 
