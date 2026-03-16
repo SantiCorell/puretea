@@ -3,80 +3,85 @@
 import { useState } from 'react';
 import { useCart } from '@/context/CartContext';
 
-// Add 'product' to the props so we have the title, price, and image for the cart
-export function QuickAdd({ 
-  variantId, 
-  product 
-}: { 
-  variantId: string; 
-  product: any 
+export function QuickAdd({
+  variantId,
+  product
+}: {
+  variantId: string;
+  product: any;
 }) {
   const [qty, setQty] = useState(1);
-  const { addToCart } = useCart();
   const [isAdded, setIsAdded] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const { setIsOpen, refreshBadge } = useCart();
 
-  const handleAddToCart = (e: React.MouseEvent) => {
+  const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
-    
-    // 1. Add to our local "Ritual" cart
-    addToCart({
-      id: variantId,
-      title: product.title,
-      price: product.variants[0].price.amount,
-      image: product.featuredImage?.url || "/images/products/placeholder.svg",
-      quantity: qty,
-    });
+    if (loading || !variantId) return;
+    setLoading(true);
 
-    // 2. Visual feedback on the button
-    setIsAdded(true);
-    setTimeout(() => setIsAdded(false), 2000);
+    try {
+      const res = await fetch('/api/cart', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ variantId, quantity: qty }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Error al añadir');
+
+      await refreshBadge();
+      setIsAdded(true);
+      setIsOpen(true);
+      setTimeout(() => setIsAdded(false), 2000);
+    } catch (e) {
+      console.error('[QuickAdd]', e);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="mt-4 flex flex-col gap-2">
-      {/* Unit Selector */}
+      {/* Quantity Selector */}
       <div className="flex items-center justify-between border border-puretea-sand rounded-full px-3 py-1 bg-puretea-cream/30">
-        <button 
+        <button
           type="button"
           onClick={(e) => { e.preventDefault(); setQty(Math.max(1, qty - 1)); }}
           className="w-8 h-8 flex items-center justify-center font-bold text-puretea-dark hover:text-puretea-organic transition-colors cursor-pointer"
-          aria-label="Decrease quantity"
+          aria-label="Reducir cantidad"
         >
           –
         </button>
         <span className="text-xs font-bold tabular-nums text-puretea-dark">
           {qty} {qty === 1 ? 'un.' : 'uns.'}
         </span>
-        <button 
+        <button
           type="button"
           onClick={(e) => { e.preventDefault(); setQty(qty + 1); }}
           className="w-8 h-8 flex items-center justify-center font-bold text-puretea-dark hover:text-puretea-organic transition-colors cursor-pointer"
-          aria-label="Increase quantity"
+          aria-label="Aumentar cantidad"
         >
           +
         </button>
       </div>
-      
-      {/* New "Add to Ritual" Button (No Redirect) */}
+
+      {/* Add to Cart Button */}
       <button
         type="button"
         onClick={handleAddToCart}
-        className={`w-full text-puretea-cream text-[10px] uppercase tracking-widest font-bold py-3 rounded-full transition-all text-center shadow-md active:scale-95 flex items-center justify-center gap-2 ${
-          isAdded 
-            ? 'bg-puretea-organic' 
-            : 'bg-puretea-dark hover:bg-puretea-organic'
+        disabled={loading}
+        className={`w-full text-puretea-cream text-[10px] uppercase tracking-widest font-bold py-3 rounded-full transition-all text-center shadow-md active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50 ${
+          isAdded ? 'bg-puretea-organic' : 'bg-puretea-dark hover:bg-puretea-organic'
         }`}
       >
-        {isAdded ? (
+        {loading ? 'Añadiendo...' : isAdded ? (
           <div className="flex items-center gap-2">
             <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
               <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
             </svg>
             <span>Añadido</span>
           </div>
-        ) : (
-          'Añadir al Ritual'
-        )}
+        ) : 'Añadir al Ritual'}
       </button>
     </div>
   );

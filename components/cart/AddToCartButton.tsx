@@ -5,9 +5,9 @@ import { useCart } from "@/context/CartContext";
 
 interface AddToCartButtonProps {
   variantId: string;
-  title: string;
-  price: string;
-  image: string;
+  title?: string;
+  price?: string;
+  image?: string;
   quantity?: number;
   disabled?: boolean;
   className?: string;
@@ -16,41 +16,32 @@ interface AddToCartButtonProps {
 
 export function AddToCartButton({
   variantId,
-  title,
-  price,
-  image,
   quantity = 1,
   disabled = false,
   className = "",
   children,
 }: AddToCartButtonProps) {
-  const { addToCart, setIsOpen } = useCart();
+  const { setIsOpen, refreshBadge } = useCart();
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
 
   const handleAdd = async () => {
-    if (disabled || loading) return;
-    
+    if (disabled || loading || !variantId) return;
     setLoading(true);
     setDone(false);
 
     try {
-      // 1. Add directly to the global cart context
-      await addToCart({
-        id: variantId,
-        title,
-        price,
-        image,
-        quantity,
+      const res = await fetch('/api/cart', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ variantId, quantity }),
       });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Error al añadir');
 
-      // 2. Visual feedback
+      await refreshBadge();
       setDone(true);
-
-      // 3. AUTO-OPEN: This opens the drawer as soon as the item is added
       setIsOpen(true);
-
-      // 4. Reset button text after a delay
       setTimeout(() => setDone(false), 2000);
     } catch (e) {
       console.error("Error adding to cart:", e);
@@ -68,9 +59,7 @@ export function AddToCartButton({
       aria-label="Añadir al carrito"
     >
       {children ?? (
-        <>
-          {loading ? "Añadiendo..." : done ? "Añadido ✓" : "Añadir al carrito"}
-        </>
+        <>{loading ? "Añadiendo..." : done ? "Añadido ✓" : "Añadir al carrito"}</>
       )}
     </button>
   );
