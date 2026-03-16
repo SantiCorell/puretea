@@ -2,21 +2,30 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-
-interface CartApiResponse {
-  cart?: {
-    lines?: { quantity: number }[];
-  } | null;
-}
+import { useCart } from "@/context/CartContext"; // Added this import
 
 export function CartButton() {
   const { setIsOpen, cart } = useCart();
-  
-  // Calculate total units (e.g., 2 Matcha + 1 Green Tea = 3)
-  const totalItems = cart.reduce((acc, item) => acc + item.quantity, 0);
+  const [bump, setBump] = useState(false); // Added the missing 'bump' state
 
-  return (
-    <button 
+  // Added the missing handleClick function
+  const handleClick = () => {
+    setIsOpen(true);
+  };
+
+  // Calculate total units (e.g., 2 Matcha + 1 Green Tea = 3)
+  const totalItems = cart.reduce((acc: number, item: any) => acc + item.quantity, 0);
+
+  // Animation effect when items are added
+  useEffect(() => {
+    if (totalItems === 0) return;
+    setBump(true);
+    const timer = setTimeout(() => setBump(false), 300);
+    return () => clearTimeout(timer);
+  }, [totalItems]);
+
+return (
+    <button
       onClick={handleClick}
       className={`relative p-2 text-puretea-dark hover:text-puretea-organic transition-colors group ${bump ? "animate-bounce" : ""}`}
       aria-label="Ver carrito"

@@ -4,8 +4,10 @@ import { TopBanner } from "@/components/layout/TopBanner";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { FloatingCartButton } from "@/components/cart/FloatingCartButton";
+import CartDrawer from "@/components/cart/CartDrawer"; // Import the Drawer
 import { fontSatoshi, fontCanela } from "@/lib/fonts";
 import { getCollections } from "@/lib/data";
+import { CartProvider } from "@/context/CartContext"; 
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://puretea.es"),
@@ -57,13 +59,17 @@ export default async function RootLayout({
       className={`${fontSatoshi.variable} ${fontCanela.variable} scroll-smooth`}
     >
       <body className="min-h-screen flex flex-col bg-[#fdfcf9] antialiased">
-        <TopBanner />
-        <Navbar collections={collections} />
+        <CartProvider>
+          <TopBanner />
+          <Navbar collections={collections} />
 
-        <main className="flex-1">{children}</main>
+          <main className="flex-1">{children}</main>
 
-        <FloatingCartButton />
-        <Footer />
+          {/* This is crucial: The drawer MUST be here to handle the "setIsOpen" trigger */}
+          <CartDrawer /> 
+          <FloatingCartButton />
+          <Footer />
+        </CartProvider>
       </body>
     </html>
   );

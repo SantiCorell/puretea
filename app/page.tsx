@@ -10,8 +10,7 @@ import { HomeFAQ } from "@/components/home/HomeFAQ";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 import { organizationSchema, websiteSchema, faqSchema } from "@/lib/seo/schema";
 
-// 1. Import the Debug Tool
-import ShopifyDebug from "@/components/ShopifyDebug";
+// ⚠️  ShopifyDebug import REMOVED — was causing the Vercel client-side exception
 
 const HOME_FAQ = [
   {
@@ -47,7 +46,6 @@ export async function generateMetadata() {
 }
 
 export default async function HomePage() {
-  // Pull the domain from your .env.local
   const shopifyDomain = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
 
   const [collections, { products }] = await Promise.all([
@@ -91,8 +89,6 @@ export default async function HomePage() {
           >
             Tés destacados
           </h2>
-          
-          {/* We pass the domain here so the cards can build the cart link */}
           <ProductGrid products={products} shopifyDomain={shopifyDomain} />
         </div>
       </section>
@@ -105,8 +101,6 @@ export default async function HomePage() {
         buttonLabel="Ver tienda"
         buttonHref="/shop"
       />
-      
-      <ShopifyDebug />
     </>
   );
 }
