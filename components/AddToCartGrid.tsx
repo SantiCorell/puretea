@@ -5,76 +5,77 @@ import { useCart } from '@/context/CartContext';
 
 export default function AddToCartGrid({ product }: { product: any }) {
   const [quantity, setQuantity] = useState(1);
-  const cartContext = useCart();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const { setIsOpen, refreshBadge } = useCart();
 
-  // Safety check: Ensure context exists to prevent crashes if used outside provider
-  if (!cartContext) return null;
-  const { addToCart, setIsOpen } = cartContext;
+  const variantId = product?.variants?.[0]?.id;
 
-  const handleAdd = () => {
-    // 1. Extract data safely with fallbacks to prevent "undefined" crashes
-    const variantId = product?.variants?.[0]?.id;
-    const price = product?.variants?.[0]?.price?.amount || "0.00";
-    const title = product?.title || "Producto";
-    const image = product?.featuredImage?.url || "/placeholder.png";
-
+  const handleAdd = async (e: React.MouseEvent) => {
+    e.preventDefault();
     if (!variantId) {
-      console.error("No variant ID found for product:", product?.title);
+      console.error('No variant ID found for:', product?.title);
       return;
     }
 
-    // 2. Add the item to the global cart
-    addToCart({
-      id: variantId,
-      title: title,
-      price: price,
-      image: image,
-      quantity: quantity
-    });
+    setLoading(true);
+    setError(null);
 
-    // 3. AUTO-OPEN: Slide the drawer out
-    setIsOpen(true);
+    try {
+      // POST to /api/cart — creates or updates a real Shopify cart,
+      // sets puretea_cart_id cookie server-side, returns checkoutUrl.
+      const res = await fetch('/api/cart', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ variantId, quantity }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Error al añadir al carrito');
+
+      // Update badge count and open drawer
+      await refreshBadge();
+      setIsOpen(true);
+
+    } catch (err) {
+      console.error('[AddToCartGrid]', err);
+      setError(err instanceof Error ? err.message : 'Error al añadir');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="mt-4 space-y-3">
       {/* Quantity Selector */}
       <div className="flex items-center justify-between border border-puretea-sand rounded-full px-4 py-2 bg-puretea-cream/10">
-        <button 
+        <button
           type="button"
-          onClick={(e) => {
-            e.preventDefault(); // Prevent accidental navigation
-            setQuantity(Math.max(1, quantity - 1));
-          }}
+          onClick={(e) => { e.preventDefault(); setQuantity(Math.max(1, quantity - 1)); }}
           className="text-puretea-dark hover:text-puretea-organic transition-colors px-2 cursor-pointer"
         >
           –
         </button>
-        <span className="text-sm font-bold text-puretea-dark tabular-nums">
-          {quantity}
-        </span>
-        <button 
+        <span className="text-sm font-bold text-puretea-dark tabular-nums">{quantity}</span>
+        <button
           type="button"
-          onClick={(e) => {
-            e.preventDefault();
-            setQuantity(quantity + 1);
-          }}
+          onClick={(e) => { e.preventDefault(); setQuantity(quantity + 1); }}
           className="text-puretea-dark hover:text-puretea-organic transition-colors px-2 cursor-pointer"
         >
           +
         </button>
       </div>
-      
-      {/* Action Button */}
+
+      {error && <p className="text-xs text-red-500 text-center">{error}</p>}
+
+      {/* Add to Cart Button */}
       <button
         type="button"
-        onClick={(e) => {
-          e.preventDefault(); // Stop page jumps
-          handleAdd();
-        }}
-        className="w-full bg-puretea-dark text-puretea-cream text-[11px] uppercase tracking-wider font-bold py-3 rounded-full hover:bg-puretea-organic transition-all shadow-sm active:scale-95"
+        onClick={handleAdd}
+        disabled={loading || !variantId}
+        className="w-full bg-puretea-dark text-puretea-cream text-[11px] uppercase tracking-wider font-bold py-3 rounded-full hover:bg-puretea-organic transition-all shadow-sm active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        Añadir al Ritual
+        {loading ? 'Añadiendo...' : 'Añadir al Ritual'}
       </button>
     </div>
   );
