@@ -5,12 +5,6 @@ import Image from "next/image";
 import { useState } from "react";
 import { CartButton } from "./CartButton";
 
-/** * LEVEL 1: Absolute Shopify Account URL
- * We add a trailing slash and force it to be a string to ensure no relative pathing.
- */
-const shopifyDomain = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN || 'puretea-5911.myshopify.com';
-const SHOPIFY_ACCOUNT_URL = `https://${shopifyDomain}/account/`;
-
 const NOSOTROS_LINKS = [
   { href: "/about", label: "Nosotros" },
   { href: "/benefits", label: "Beneficios" },
@@ -31,6 +25,7 @@ export interface NavbarCollections {
 }
 
 const DEFAULT_COMPRAR_LINKS = [
+  { href: "/comprar-te", label: "Comprar té online" },
   { href: "/shop", label: "Ver todo" },
   { href: "/category/matcha", label: "Matcha" },
   { href: "/category/green-tea", label: "Té verde" },
@@ -42,6 +37,7 @@ const DEFAULT_COMPRAR_LINKS = [
 function buildComprarLinks(collections: NavbarCollections[] | undefined) {
   if (!collections?.length) return DEFAULT_COMPRAR_LINKS;
   return [
+    { href: "/comprar-te", label: "Comprar té online" },
     { href: "/shop", label: "Ver todo" },
     ...collections.map((c) => ({ href: `/category/${c.handle}`, label: c.title })),
   ];
@@ -113,11 +109,10 @@ export function Navbar({ collections }: { collections?: NavbarCollections[] }) {
           <div className="hidden lg:flex items-center gap-3">
             <span className="text-xs font-bold text-puretea-organic bg-puretea-organic/10 px-3 py-1 rounded-full">Envíos gratis 50€</span>
             
-            {/* LEVEL 1: Shopify Account Link with prefetch disabled to prevent 404s */}
-            <Link 
-              href={SHOPIFY_ACCOUNT_URL} 
+            <Link
+              href="/account"
               prefetch={false}
-              className="p-2 text-puretea-dark hover:text-puretea-organic rounded-lg hover:bg-puretea-sand/30 transition-colors" 
+              className="p-2 text-puretea-dark hover:text-puretea-organic rounded-lg hover:bg-puretea-sand/30 transition-colors"
               aria-label="Mi cuenta"
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -160,14 +155,13 @@ export function Navbar({ collections }: { collections?: NavbarCollections[] }) {
               <Link href="/about" className="py-3 text-puretea-dark font-medium border-b border-puretea-sand/20 text-sm" onClick={() => setMobileOpen(false)}>Nosotros</Link>
               <Link href="/blog" className="py-3 text-puretea-dark font-medium border-b border-puretea-sand/20 text-sm" onClick={() => setMobileOpen(false)}>Blog</Link>
               
-              {/* LEVEL 1: Forced Absolute Shopify Link */}
-              <a 
-                href={SHOPIFY_ACCOUNT_URL} 
-                className="py-3 block text-puretea-dark font-medium border-b border-puretea-sand/20 text-sm" 
+              <Link
+                href="/account"
+                className="py-3 block text-puretea-dark font-medium border-b border-puretea-sand/20 text-sm"
                 onClick={() => setMobileOpen(false)}
               >
-                Mi cuenta (Shopify)
-              </a>
+                Mi cuenta
+              </Link>
               
               <Link href="/shop" className="mt-6 inline-flex w-full justify-center rounded-full bg-puretea-dark text-puretea-cream py-4 font-bold text-base uppercase tracking-wider" onClick={() => setMobileOpen(false)}>
                 Ver Catálogo

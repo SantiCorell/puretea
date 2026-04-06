@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://puretea.com";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.puretea.es";
 
 export interface PageMetadataParams {
   title?: string;
@@ -24,7 +24,7 @@ export function buildPageMetadata({
     title: title ?? undefined,
     description: description ?? undefined,
     openGraph: {
-      title: title ?? "PureTea | Premium Tea & Wellness",
+      title: title ?? "Comprar té online | PureTea",
       description: description ?? undefined,
       url,
       siteName: "PureTea",
@@ -34,7 +34,7 @@ export function buildPageMetadata({
     },
     twitter: {
       card: "summary_large_image",
-      title: title ?? "PureTea",
+      title: title ?? "Comprar té online | PureTea",
       description: description ?? undefined,
       images: [ogImage],
     },

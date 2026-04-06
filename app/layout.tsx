@@ -10,13 +10,13 @@ import { getCollections } from "@/lib/data";
 import { CartProvider } from "@/context/CartContext"; 
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://puretea.es"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.puretea.es"),
   title: {
-    default: "PureTea | Premium Tea & Wellness",
+    default: "Comprar té online | Matcha, té verde y wellness | PureTea",
     template: "%s | PureTea",
   },
   description:
-    "Premium tea brand. Japanese matcha, green tea, black tea, herbal infusions and wellness blends. Pure tea, pure ritual.",
+    "Comprar té online: matcha japonés, té verde, negro e infusiones premium. Envío gratis desde 50€. Pago seguro. PureTea — pure tea, pure ritual.",
   openGraph: {
     type: "website",
     locale: "es_ES",

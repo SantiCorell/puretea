@@ -8,8 +8,9 @@ import { buildPageMetadata } from "@/lib/seo/metadata";
 
 export async function generateMetadata() {
   return buildPageMetadata({
-    title: "Tienda",
-    description: "Compra matcha, té verde, té negro, infusiones y blends de bienestar. Envíos a toda Europa.",
+    title: "Tienda · Comprar té online | Matcha, verde, negro e infusiones",
+    description:
+      "Comprar té online: matcha japonés, té verde, negro, infusiones y wellness. Envío gratis desde 50€. Catálogo PureTea con pago seguro.",
     path: "/shop",
   });
 }

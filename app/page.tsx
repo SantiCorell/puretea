@@ -7,6 +7,7 @@ import { StatsSection } from "@/components/home/StatsSection";
 import { ReviewsSection } from "@/components/home/ReviewsSection";
 import { CTASection } from "@/components/ui/CTASection";
 import { HomeFAQ } from "@/components/home/HomeFAQ";
+import { ConversionStrip } from "@/components/home/ConversionStrip";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 import { organizationSchema, websiteSchema, faqSchema } from "@/lib/seo/schema";
 
@@ -37,9 +38,9 @@ const HOME_FAQ = [
 
 export async function generateMetadata() {
   return buildPageMetadata({
-    title: "PureTea | Premium Tea & Wellness",
+    title: "Comprar té online | Tés premium, matcha y envío gratis +50€ | PureTea",
     description:
-      "Té premium para tu día. Matcha japonés, tés verdes, negros e infusiones de bienestar. Pure tea, pure ritual.",
+      "Comprar té online con envío gratis desde 50€. Matcha ceremonial, té verde, negro, infusiones y wellness. Valoración excelente · Pago seguro · Compra ahora.",
     path: "/",
     image: "/images/hero/og-default.jpg",
   });
@@ -76,6 +77,7 @@ export default async function HomePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
       />
       <Hero />
+      <ConversionStrip />
       <StatsSection />
       <CategoryGrid categories={categories} />
       <section
@@ -87,7 +89,7 @@ export default async function HomePage() {
             id="featured-heading"
             className="font-canela text-3xl sm:text-4xl text-puretea-dark text-center mb-12"
           >
-            Tés destacados
+            Tés destacados — compra online
           </h2>
           <ProductGrid products={products} shopifyDomain={shopifyDomain} />
         </div>
@@ -96,9 +98,9 @@ export default async function HomePage() {
       <ReviewsSection />
       <HomeFAQ items={HOME_FAQ} title="Preguntas frecuentes" />
       <CTASection
-        title="Descubre toda la colección"
-        description="Matcha, tés verdes, negros e infusiones de bienestar."
-        buttonLabel="Ver tienda"
+        title="Únete al ritual de miles de personas"
+        description="El mejor té no es un capricho: es tu pausa consciente. Envío gratis desde 50€ y devoluciones claras."
+        buttonLabel="Ir a la tienda"
         buttonHref="/shop"
       />
     </>

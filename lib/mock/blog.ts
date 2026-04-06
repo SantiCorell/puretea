@@ -126,6 +126,46 @@ const LONG = {
 <h2>Productos que te ayudan</h2>
 <p>En PureTea tenemos todo lo que necesitas: matcha ceremonial, tés verdes, Focus Blend para los días de más demanda y guías en <a href="/how-to-brew">Cómo preparar</a>. Somos expertos en rituales de té y en bienestar; empieza por una sola referencia y construye desde ahí. Pure tea, pure ritual.</p>
 `,
+  buyTeaOnlineGuide: `
+<h2>Qué debe tener una tienda de té online fiable</h2>
+<p>Origen claro (Japón para matcha, regiones conocidas para negros y verdes), fecha de tueste o empaquetado cuando aplique, política de envíos transparente y checkout seguro. Evita sitios sin datos de contacto o con precios irreales.</p>
+<h2>Cómo aprovechar el envío gratis</h2>
+<p>Agrupa pedidos para superar el umbral — en PureTea el envío es gratis a partir de 50€ en pedidos que cumplan la condición. Revisa el carrito antes de pagar: el checkout de Shopify muestra el coste final.</p>
+<h2>Primer pedido: por dónde empezar</h2>
+<p>Si buscas <strong>comprar té online</strong> con intención clara, combina un té de ritual (matcha o verde) con una infusión nocturna y un negro para meriendas. Así cubres momentos del día. Nuestra <a href="/comprar-te">guía para comprar té</a> resume categorías y envíos.</p>
+`,
+  teaGiftIdeas: `
+<h2>Regalos de té que sí se usan</h2>
+<p>Mejor una referencia premium que una caja genérica enorme. El matcha ceremonial con batidor, un duo verde+negro o un Relax Blend para quien necesita desconectar suelen funcionar mejor que surtidos anónimos.</p>
+<h2>Empaque y mensaje</h2>
+<p>Añade nota en el pedido si regalas directo: en PureTea cuidamos el packaging. Para Navidad o cumpleaños, los <a href="/regalos-te-originales">kits de regalo de té</a> son un buen punto de partida.</p>
+<h2>Presupuestos</h2>
+<p>Entre 25€ y 60€ puedes montar regalos muy vistosos: matcha + accesorio mínimo, o selección de tres tés 50g. Escala según cercanía y ocasión.</p>
+`,
+  buyMatchaOnline: `
+<h2>Señales de matcha de verdad</h2>
+<p>Color verde intenso (no amarillento), origen Japón en etiqueta, olor fresco vegetal. El precio muy bajo suele indicar grado culinario o mezclas diluidas. Para beber, apuesta por ceremonial.</p>
+<h2>Errores al comprar matcha online</h2>
+<p>Comprar sin mirar grado, usar agua hirviendo al prepararlo o guardarlo con luz. Corrige esos tres puntos y el matcha «cambia de categoría» en taza.</p>
+<h2>Dónde comprar matcha de calidad</h2>
+<p>En PureTea trabajamos matcha japonés seleccionado. Lee <a href="/te-matcha-japones-premium">matcha japonés premium</a> y la guía <a href="/como-preparar-te-matcha">cómo preparar matcha</a> antes de elegir.</p>
+`,
+  greenTeaHealthDeep: `
+<h2>EGCG y hábito: qué sabemos</h2>
+<p>El té verde aporta catequinas; la más citada en estudios es el EGCG. Los efectos se observan en contextos de dieta equilibrada, no como «medicamento» en una taza. Para patologías, consulta siempre a profesionales.</p>
+<h2>Cuántas tazas y cuándo</h2>
+<p>2–3 tazas al día es un rango habitual en población sana. Si eres sensible a la cafeína, adelanta las últimas tomas. El agua no debe hervir sobre hojas delicadas.</p>
+<h2>Comprar té verde online</h2>
+<p>Prioriza hojas enteras y origen. En nuestra <a href="/category/green-tea">categoría té verde</a> encontrarás opciones listas para infusionar. Amplía con <a href="/beneficios-te-verde-salud">beneficios del té verde</a>.</p>
+`,
+  herbalRelaxBuy: `
+<h2>Infusiones para comprar si no duermes bien</h2>
+<p>Manzanilla, melisa, lavanda, pasiflora en mezclas suaves. Evita té verde/negro/matcha en la noche si notas que te estimulan.</p>
+<h2>Cómo montar rutina</h2>
+<p>Misma hora, misma taza, sin pantallas 30 minutos antes de dormir. El efecto es acumulativo: no esperes magia la primera noche.</p>
+<h2>Catálogo PureTea</h2>
+<p><a href="/te-para-dormir-relajacion">Té para dormir</a> · <a href="/category/herbal-tea">Infusiones</a> · <a href="/blog/herbal-teas-for-sleep">Artículo infusiones para dormir</a></p>
+`,
 };
 
 export const BLOG_POSTS: BlogPost[] = [
@@ -276,6 +316,83 @@ export const BLOG_POSTS: BlogPost[] = [
     date: "2024-10-20",
     category: "Bienestar",
     relatedProducts: ["ceremonial-matcha", "sencha-organic"],
+  },
+  {
+    slug: "guia-comprar-te-online-espana",
+    title: "Guía para comprar té online en España (2026)",
+    excerpt:
+      "Cómo elegir tienda, envíos, primer pedido y señales de calidad. Comprar té online con criterio — PureTea.",
+    content:
+      "<p>Si buscas <strong>comprar té online</strong> y no acabar con cajas que no vas a terminar, necesitas origen claro, buen servicio y un catálogo honesto. Esta guía resume lo que aplicamos en PureTea.</p>" +
+      LONG.buyTeaOnlineGuide,
+    image: "/images/blog/green-vs-coffee.png",
+    date: "2026-04-01",
+    category: "Comprar té",
+    faqs: [
+      {
+        question: "¿Es seguro comprar té online?",
+        answer: "Sí, si la tienda usa checkout reconocido (Shopify, etc.), muestra políticas claras y datos de contacto. Evita sitios sin HTTPS o sin información de empresa.",
+      },
+      {
+        question: "¿Cuánto tarda el envío del té?",
+        answer: "Depende del destino. En PureTea, orientativamente 3–5 días laborables en península y 5–10 en el resto de Europa; el plazo exacto se confirma en checkout.",
+      },
+    ],
+    relatedProducts: ["ceremonial-matcha", "sencha-organic"],
+  },
+  {
+    slug: "regalos-te-original-pareja-amigo",
+    title: "Regalos de té originales: ideas que aciertan",
+    excerpt: "Kits de matcha, packs verde+negro y blends para relax. Regalar té con sentido — PureTea.",
+    content:
+      "<p>Regalar té es regalar ritual: pausa, aroma y cuidado. Te proponemos combinaciones que funcionan en la vida real, no solo en fotos.</p>" +
+      LONG.teaGiftIdeas,
+    image: "/images/blog/benefits-matcha.png",
+    date: "2026-03-28",
+    category: "Regalos",
+    relatedProducts: ["ceremonial-matcha", "relax-blend"],
+  },
+  {
+    slug: "comprar-matcha-online-calidad",
+    title: "Comprar matcha online: señales de calidad y errores típicos",
+    excerpt: "Grado ceremonial, origen Japón y conservación. Guía para no fallar al comprar matcha — PureTea.",
+    content:
+      "<p>El matcha es el producto más copiado del mundo del té. Así evitas polvo barato disfrazado de «premium».</p>" +
+      LONG.buyMatchaOnline,
+    image: "/images/blog/japanese-matcha.png",
+    date: "2026-03-22",
+    category: "Matcha",
+    faqs: [
+      {
+        question: "¿Qué matcha comprar si soy principiante?",
+        answer: "Un matcha ceremonial de origen japonés, en cantidad pequeña para practicar. Evita bolsas grandes baratas al inicio.",
+      },
+    ],
+    relatedProducts: ["ceremonial-matcha"],
+  },
+  {
+    slug: "te-verde-salud-guia-completa-2026",
+    title: "Té verde y salud: guía completa sin mitos",
+    excerpt: "EGCG, hábitos y cuántas tazas. Perspectiva equilibrada para comprar té verde con criterio — PureTea.",
+    content:
+      "<p>El té verde es tendencia por motivos científicos y por marketing. Separamos ambas cosas.</p>" +
+      LONG.greenTeaHealthDeep,
+    image: "/images/blog/best-time-green-tea.png",
+    date: "2026-03-18",
+    category: "Salud",
+    relatedProducts: ["sencha-organic", "ceremonial-matcha"],
+  },
+  {
+    slug: "infusiones-relajantes-comprar-dormir",
+    title: "Infusiones relajantes: qué comprar para dormir mejor",
+    excerpt: "Sin cafeína, rutina nocturna y productos PureTea. Compra online con envío gratis +50€.",
+    content:
+      "<p>Si tu objetivo es descansar, el té con cafeína es tu rival. Aquí va la estrategia de compra.</p>" +
+      LONG.herbalRelaxBuy,
+    image: "/images/blog/herbal-sleep.png",
+    date: "2026-03-12",
+    category: "Wellness",
+    relatedProducts: ["relax-blend", "chamomile-lavender"],
   },
 ];
 

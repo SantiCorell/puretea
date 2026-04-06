@@ -42,11 +42,10 @@ export async function GET(request: NextRequest) {
     }
     return NextResponse.json({ cart });
   } catch (error) {
-    console.error("[API cart GET]", error);
-    return NextResponse.json(
-      { error: "Error al obtener el carrito" },
-      { status: 500 }
-    );
+    console.warn("[API cart GET] reset cookie", error);
+    const res = NextResponse.json({ cart: null });
+    res.headers.set("Set-Cookie", clearCartCookie());
+    return res;
   }
 }
 

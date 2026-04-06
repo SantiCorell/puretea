@@ -14,9 +14,9 @@ export async function generateMetadata({
   const page = Math.max(1, parseInt(params?.page ?? "1", 10) || 1);
   const isFirst = page <= 1;
   return buildPageMetadata({
-    title: isFirst ? "Blog" : `Blog — Página ${page}`,
+    title: isFirst ? "Blog de té: matcha, comprar online y bienestar" : `Blog — Página ${page}`,
     description:
-      "Artículos sobre matcha, té verde, bienestar y cómo preparar tu té. Guías y recetas.",
+      "Guías para comprar té online, matcha, té verde, regalos, infusiones y bienestar. Contenido experto PureTea — actualizado 2026.",
     path: isFirst ? "/blog" : `/blog?page=${page}`,
   });
 }
@@ -38,10 +38,10 @@ export default async function BlogPage({
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
       <header className="mb-14 text-center max-w-2xl mx-auto">
         <h1 className="font-canela text-4xl sm:text-5xl text-puretea-dark">
-          Blog PureTea
+          Blog: comprar té, matcha y bienestar
         </h1>
         <p className="mt-4 text-lg text-puretea-dark/80">
-          Guías expertas sobre matcha, té verde, bienestar y ritual. Somos referentes en té premium.
+          Guías para comprar té online, preparar matcha, elegir regalos y cuidar tu ritual. Contenido profundo, sin relleno.
         </p>
       </header>
       {/* Mobile: carrusel horizontal de posts */}

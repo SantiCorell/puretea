@@ -3,6 +3,9 @@ import Image from "next/image";
 
 const FOOTER_LINKS = {
   shop: [
+    { href: "/comprar-te", label: "Comprar té online" },
+    { href: "/envio-rapido-te", label: "Envío rápido" },
+    { href: "/regalos-te-originales", label: "Regalos de té" },
     { href: "/shop", label: "Tienda" },
     { href: "/category/matcha", label: "Matcha" },
     { href: "/category/green-tea", label: "Té Verde" },

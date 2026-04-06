@@ -3,7 +3,7 @@
  * Product, Article, FAQ, Organization.
  */
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://puretea.com";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.puretea.es";
 
 export function productSchema(product: {
   name: string;
@@ -75,7 +75,8 @@ export function organizationSchema() {
     name: "PureTea",
     url: siteUrl,
     logo: `${siteUrl}/logos/logo.svg`,
-    description: "Premium tea brand. Japanese matcha, green tea, black tea, herbal infusions and wellness blends.",
+    description:
+      "Tienda online de té premium: comprar té, matcha japonés, té verde, negro e infusiones. Envío gratis desde 50€ en Europa. PureTea.",
     sameAs: [],
   };
 }
@@ -88,6 +89,40 @@ export function websiteSchema() {
     url: siteUrl,
     potentialAction: { "@type": "SearchAction", target: { "@type": "EntryPoint", urlTemplate: `${siteUrl}/shop?q={search_term_string}` }, "query-input": "required name=search_term_string" },
   };
+}
+
+/** Landings SEO: WebPage + BreadcrumbList + FAQ opcional (Google / IA) */
+export function seoLandingSchema(params: {
+  title: string;
+  description: string;
+  path: string;
+  h1: string;
+  faqs?: { question: string; answer: string }[];
+}) {
+  const url = `${siteUrl}${params.path.startsWith("/") ? params.path : `/${params.path}`}`;
+  const graph: Record<string, unknown>[] = [
+    {
+      "@type": "WebPage",
+      "@id": url,
+      url,
+      name: params.title,
+      headline: params.h1,
+      description: params.description,
+      inLanguage: "es-ES",
+      isPartOf: { "@type": "WebSite", name: "PureTea", url: siteUrl },
+    },
+    {
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Inicio", item: siteUrl },
+        { "@type": "ListItem", position: 2, name: params.h1, item: url },
+      ],
+    },
+  ];
+  if (params.faqs?.length) {
+    graph.push(faqSchema(params.faqs) as unknown as Record<string, unknown>);
+  }
+  return { "@context": "https://schema.org", "@graph": graph };
 }
 
 /** Benefits page: Article + FAQ en un solo @graph para Google y asistentes IA */

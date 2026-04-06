@@ -5,9 +5,10 @@
 
 import type { Product } from "@/lib/data";
 
-const domain = process.env.SHOPIFY_STORE_DOMAIN;
+const domain =
+  process.env.SHOPIFY_STORE_DOMAIN || process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
 const adminToken = process.env.SHOPIFY_ADMIN_ACCESS_TOKEN;
-const apiVersion = process.env.SHOPIFY_API_VERSION ?? "2024-01";
+const apiVersion = process.env.SHOPIFY_API_VERSION ?? "2026-01";
 
 interface AdminImage {
   id: number;

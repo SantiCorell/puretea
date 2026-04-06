@@ -129,10 +129,11 @@ function normalizeCart(cart: CartFragmentResult): Cart {
 // ——— Queries & mutations ———
 
 export async function getCart(cartId: string): Promise<Cart | null> {
-  const data = await shopifyFetch<{
-    cart: CartFragmentResult | null;
-  }>(
-    `
+  try {
+    const data = await shopifyFetch<{
+      cart: CartFragmentResult | null;
+    }>(
+      `
     ${CART_FRAGMENT}
     query GetCart($id: ID!) {
       cart(id: $id) {
@@ -140,10 +141,14 @@ export async function getCart(cartId: string): Promise<Cart | null> {
       }
     }
   `,
-    { id: cartId }
-  );
-  if (!data.cart) return null;
-  return normalizeCart(data.cart);
+      { id: cartId }
+    );
+    if (!data.cart) return null;
+    return normalizeCart(data.cart);
+  } catch {
+    // Carrito expirado, ID de otra tienda, o fallo temporal de API
+    return null;
+  }
 }
 
 export async function createCart(variantId: string, quantity: number): Promise<Cart> {

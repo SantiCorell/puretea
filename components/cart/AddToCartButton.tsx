@@ -24,11 +24,13 @@ export function AddToCartButton({
   const { setIsOpen, refreshBadge } = useCart();
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const handleAdd = async () => {
     if (disabled || loading || !variantId) return;
     setLoading(true);
     setDone(false);
+    setErrorMsg(null);
 
     try {
       const res = await fetch('/api/cart', {
@@ -44,6 +46,8 @@ export function AddToCartButton({
       setIsOpen(true);
       setTimeout(() => setDone(false), 2000);
     } catch (e) {
+      const msg = e instanceof Error ? e.message : 'Error al añadir';
+      setErrorMsg(msg.length > 220 ? `${msg.slice(0, 220)}…` : msg);
       console.error("Error adding to cart:", e);
     } finally {
       setLoading(false);
@@ -51,16 +55,23 @@ export function AddToCartButton({
   };
 
   return (
-    <button
-      type="button"
-      onClick={handleAdd}
-      disabled={disabled || loading}
-      className={className}
-      aria-label="Añadir al carrito"
-    >
-      {children ?? (
-        <>{loading ? "Añadiendo..." : done ? "Añadido ✓" : "Añadir al carrito"}</>
+    <div className="w-full">
+      <button
+        type="button"
+        onClick={handleAdd}
+        disabled={disabled || loading}
+        className={className}
+        aria-label="Añadir al carrito"
+      >
+        {children ?? (
+          <>{loading ? "Añadiendo..." : done ? "Añadido ✓" : "Añadir al carrito"}</>
+        )}
+      </button>
+      {errorMsg && (
+        <p className="mt-2 text-xs text-red-600 leading-snug" role="alert">
+          {errorMsg}
+        </p>
       )}
-    </button>
+    </div>
   );
 }

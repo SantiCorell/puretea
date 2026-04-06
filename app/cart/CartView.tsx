@@ -77,8 +77,9 @@ export function CartView() {
     if (cart.checkoutUrl) {
       window.location.href = cart.checkoutUrl;
     } else {
-      // Safe fallback — always goes to Shopify, never routes through Next.js
-      window.location.href = "https://puretea-5911.myshopify.com/cart";
+      const shop =
+        process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN || "puretea-5910.myshopify.com";
+      window.location.href = `https://${shop}/cart`;
     }
   };
 
