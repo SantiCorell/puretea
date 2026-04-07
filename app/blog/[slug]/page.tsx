@@ -11,6 +11,49 @@ interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
+const CATEGORY_EXPANSION: Record<string, { title: string; points: string[]; extraHtml: string }> = {
+  Matcha: {
+    title: "Claves rápidas para elegir buen matcha",
+    points: [
+      "Busca origen japonés y grado ceremonial si lo quieres para beber.",
+      "Color verde vivo y aroma fresco: señales de frescura real.",
+      "Evita agua hirviendo para no amargar y perder matices.",
+    ],
+    extraHtml:
+      "<p>Si estás comparando productos, revisa origen, grado y fecha de consumo preferente. Un matcha barato puede parecer atractivo, pero suele penalizar sabor y experiencia. Para decidir mejor, visita también <a href='/te-matcha-japones-premium'>nuestra landing de matcha premium</a> y cruza con la guía <a href='/como-preparar-te-matcha'>cómo preparar matcha</a>.</p>",
+  },
+  Wellness: {
+    title: "Cómo convertir teoría en rutina diaria",
+    points: [
+      "Define un objetivo por franja (foco mañana, relax noche).",
+      "Mantén horarios consistentes para notar cambios reales.",
+      "Combina té con hidratación y descanso para mejores resultados.",
+    ],
+    extraHtml:
+      "<p>El bienestar no depende de una sola taza: funciona cuando lo integras en hábitos estables. Si quieres recomendaciones por objetivo, revisa <a href='/te-wellness'>tienda wellness</a> y <a href='/te-para-dormir-relajacion'>tés para dormir y relajación</a>.</p>",
+  },
+  Salud: {
+    title: "Lectura responsable de contenido de salud",
+    points: [
+      "El té apoya hábitos saludables, no sustituye diagnóstico médico.",
+      "Ajusta cafeína según tolerancia personal y horario.",
+      "Consulta profesionales en embarazo, medicación o patologías.",
+    ],
+    extraHtml:
+      "<p>Nuestra recomendación: usa estas guías para orientarte y luego personaliza con ayuda profesional cuando haga falta. Para ampliar, visita <a href='/beneficios-te-verde-salud'>beneficios del té verde</a> y <a href='/te-para-embarazadas'>tés permitidos en embarazo</a>.</p>",
+  },
+  "Comprar té": {
+    title: "Checklist de compra online (sin errores)",
+    points: [
+      "Comprueba políticas de envío y devoluciones antes de pagar.",
+      "Empieza con una selección corta de categorías para testear.",
+      "Prioriza fichas con información clara de origen y preparación.",
+    ],
+    extraHtml:
+      "<p>En PureTea hemos creado una ruta práctica para acelerar decisiones: <a href='/comprar-te'>comprar té online</a>, <a href='/envio-rapido-te'>envío rápido</a> y <a href='/regalos-te-originales'>regalos de té</a>. Te ayudará a convertir mejor y evitar compras impulsivas de baja calidad.</p>",
+  },
+};
+
 export async function generateStaticParams() {
   const { BLOG_POSTS } = await import("@/lib/mock/blog");
   return BLOG_POSTS.map((p) => ({ slug: p.slug }));
@@ -49,6 +92,9 @@ export default async function BlogPostPage({ params }: PageProps) {
     url: `/blog/${post.slug}`,
     author: post.author,
   });
+  const expansion =
+    CATEGORY_EXPANSION[post.category] ??
+    CATEGORY_EXPANSION.Wellness;
 
   return (
     <>
@@ -100,10 +146,32 @@ export default async function BlogPostPage({ params }: PageProps) {
             })}
           </time>
         </header>
+        <section className="mt-8 rounded-2xl border border-puretea-sand/70 bg-puretea-cream/40 p-5 sm:p-6">
+          <h2 className="font-canela text-2xl text-puretea-dark">{expansion.title}</h2>
+          <ul className="mt-4 grid gap-2 sm:grid-cols-3">
+            {expansion.points.map((point) => (
+              <li key={point} className="rounded-xl bg-white px-3 py-2 text-sm text-puretea-dark/80 border border-puretea-sand/60">
+                {point}
+              </li>
+            ))}
+          </ul>
+        </section>
         <div
           className="mt-8 prose prose-neutral prose-lg max-w-none text-puretea-dark/90 prose-headings:font-canela prose-headings:text-puretea-dark prose-a:text-puretea-organic prose-a:no-underline hover:prose-a:underline prose-h2:mt-12 prose-h2:mb-4 prose-h2:text-2xl prose-p:leading-relaxed"
           dangerouslySetInnerHTML={{ __html: post.content }}
         />
+        <section
+          className="mt-10 rounded-2xl border border-puretea-sand/70 bg-white p-5 sm:p-6"
+          aria-labelledby="deep-dive-title"
+        >
+          <h2 id="deep-dive-title" className="font-canela text-2xl text-puretea-dark">
+            Guía ampliada para decidir mejor
+          </h2>
+          <div
+            className="mt-4 prose prose-neutral max-w-none text-puretea-dark/85 prose-a:text-puretea-organic prose-a:no-underline hover:prose-a:underline"
+            dangerouslySetInnerHTML={{ __html: expansion.extraHtml }}
+          />
+        </section>
         {post.faqs && post.faqs.length > 0 && (
           <FAQ items={post.faqs} title="Preguntas frecuentes" />
         )}

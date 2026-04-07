@@ -5,6 +5,11 @@ import { FAQ } from "@/components/ui/FAQ";
 export function SeoLandingView({ landing }: { landing: SeoLanding }) {
   const ctaHref = landing.ctaHref ?? "/shop";
   const ctaLabel = landing.ctaLabel ?? "Ver tienda";
+  const quickPoints = [
+    "Compra segura con checkout Shopify",
+    "Envío gratis desde 50€",
+    "Selección premium de matcha, té e infusiones",
+  ];
 
   return (
     <article className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-20">
@@ -22,7 +27,7 @@ export function SeoLandingView({ landing }: { landing: SeoLanding }) {
         </ol>
       </nav>
 
-      <header className="mb-10">
+      <header className="mb-10 rounded-3xl border border-puretea-sand/60 bg-gradient-to-br from-white to-puretea-cream/70 p-6 sm:p-8">
         <p className="text-xs font-semibold uppercase tracking-widest text-puretea-organic mb-2">
           PureTea · Comprar té online
         </p>
@@ -44,6 +49,16 @@ export function SeoLandingView({ landing }: { landing: SeoLanding }) {
             Guía comprar té
           </Link>
         </div>
+        <ul className="mt-6 grid gap-2 sm:grid-cols-3">
+          {quickPoints.map((point) => (
+            <li
+              key={point}
+              className="rounded-xl border border-puretea-sand/70 bg-white/80 px-3.5 py-2 text-sm text-puretea-dark/80"
+            >
+              {point}
+            </li>
+          ))}
+        </ul>
       </header>
 
       <div className="space-y-12">

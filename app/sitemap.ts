@@ -77,6 +77,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     changeFrequency: "monthly" as const,
     priority: 0.75,
   }));
+  const BLOG_POSTS_PER_PAGE = 9;
+  const blogPages = Math.ceil(BLOG_POSTS.length / BLOG_POSTS_PER_PAGE);
+  const blogPaginationUrls: MetadataRoute.Sitemap = Array.from(
+    { length: Math.max(0, blogPages - 1) },
+    (_, i) => ({
+      url: `${BASE_URL}/blog?page=${i + 2}`,
+      lastModified: new Date(),
+      changeFrequency: "weekly" as const,
+      priority: 0.6,
+    })
+  );
 
   // Landings SEO: /[slug]
   const seoLandings = getAllSeoLandings();
@@ -90,7 +101,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Evitar duplicar /comprar-te si ya está en static con distinta prioridad: dedupe por URL
   const seen = new Set<string>();
   const merged: MetadataRoute.Sitemap = [];
-  for (const entry of [...staticPart, ...seoUrls, ...productUrls, ...categoryUrls, ...blogUrls]) {
+  for (const entry of [
+    ...staticPart,
+    ...seoUrls,
+    ...productUrls,
+    ...categoryUrls,
+    ...blogUrls,
+    ...blogPaginationUrls,
+  ]) {
     const u = entry.url.replace(/\/$/, "");
     if (seen.has(u)) continue;
     seen.add(u);

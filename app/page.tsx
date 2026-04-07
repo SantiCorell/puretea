@@ -8,6 +8,7 @@ import { ReviewsSection } from "@/components/home/ReviewsSection";
 import { CTASection } from "@/components/ui/CTASection";
 import { HomeFAQ } from "@/components/home/HomeFAQ";
 import { ConversionStrip } from "@/components/home/ConversionStrip";
+import { WhyPureTea } from "@/components/home/WhyPureTea";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 import { organizationSchema, websiteSchema, faqSchema } from "@/lib/seo/schema";
 
@@ -78,6 +79,7 @@ export default async function HomePage() {
       />
       <Hero />
       <ConversionStrip />
+      <WhyPureTea />
       <StatsSection />
       <CategoryGrid categories={categories} />
       <section

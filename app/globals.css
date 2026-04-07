@@ -81,6 +81,15 @@ body {
   animation: faq-in 0.3s ease-out;
 }
 
+/* Micro-interacciones visuales ligeras (sin JS extra) */
+.hover-lift {
+  transition: transform 200ms ease, box-shadow 200ms ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+}
+
 /* Cómo preparar: flujo horizontal tipo proceso, flechas que alternan y animan */
 .brew-flow {
   @apply w-full;
