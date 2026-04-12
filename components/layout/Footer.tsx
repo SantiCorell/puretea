@@ -23,6 +23,7 @@ const FOOTER_LINKS = {
   legal: [
     { href: "/legal/privacy", label: "Privacidad" },
     { href: "/legal/terms", label: "Términos" },
+    { href: "/legal/returns", label: "Devoluciones" },
   ],
 };
 

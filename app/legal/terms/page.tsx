@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 
 export async function generateMetadata() {
@@ -15,7 +16,16 @@ export default function TermsPage() {
         Términos y condiciones
       </h1>
       <p className="mt-4 text-puretea-dark/80">
-        Las compras en PureTea se rigen por los términos de uso de Shopify y nuestras condiciones de envío y devoluciones. Para cualquier duda, contacta con nosotros.
+        Las compras en PureTea se rigen por los términos de uso de la plataforma y nuestras
+        condiciones de envío. Las devoluciones se describen en la{" "}
+        <Link href="/legal/returns" className="text-puretea-organic font-medium underline-offset-2 hover:underline">
+          política de devoluciones
+        </Link>
+        . Para cualquier duda,{" "}
+        <Link href="/contact" className="text-puretea-organic font-medium underline-offset-2 hover:underline">
+          contáctanos
+        </Link>
+        .
       </p>
     </div>
   );

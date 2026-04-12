@@ -19,6 +19,9 @@ const STATIC_ROUTES: MetadataRoute.Sitemap = [
   { url: `${BASE_URL}/how-to-brew`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.85 },
   { url: `${BASE_URL}/collections`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.85 },
   { url: `${BASE_URL}/creators`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.55 },
+  { url: `${BASE_URL}/legal/privacy`, lastModified: new Date(), changeFrequency: "yearly", priority: 0.35 },
+  { url: `${BASE_URL}/legal/terms`, lastModified: new Date(), changeFrequency: "yearly", priority: 0.35 },
+  { url: `${BASE_URL}/legal/returns`, lastModified: new Date(), changeFrequency: "yearly", priority: 0.45 },
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
