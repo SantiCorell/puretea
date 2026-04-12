@@ -1,19 +1,43 @@
 import { NextRequest, NextResponse } from "next/server";
+import {
+  CUSTOMER_OAUTH_COOKIES,
+  getCustomerAccountConfig,
+} from "@/lib/shopify/customer-account-auth";
 
-const ACCESS_COOKIE = "puretea_customer_access_token";
-const REFRESH_COOKIE = "puretea_customer_refresh_token";
-
+/**
+ * Cierre de sesión OIDC en Shopify: exige id_token_hint + post_logout_redirect_uri.
+ * @see https://shopify.dev/docs/api/customer/latest#logging-out
+ */
 export async function GET(request: NextRequest) {
-  const logoutUrl =
+  const logoutUrlBase =
     process.env.NEXT_PUBLIC_SHOPIFY_CUSTOMER_LOGOUT_URL?.trim() || "";
-  const site = new URL("/", request.nextUrl.origin);
+  const { postLogoutRedirectUri } = getCustomerAccountConfig();
+  const origin = request.nextUrl.origin;
 
-  const res = logoutUrl.startsWith("http")
-    ? NextResponse.redirect(logoutUrl)
-    : NextResponse.redirect(site);
+  const clearSession = (r: NextResponse) => {
+    r.cookies.delete(CUSTOMER_OAUTH_COOKIES.accessToken);
+    r.cookies.delete(CUSTOMER_OAUTH_COOKIES.refreshToken);
+    r.cookies.delete(CUSTOMER_OAUTH_COOKIES.idToken);
+    return r;
+  };
 
-  res.cookies.delete(ACCESS_COOKIE);
-  res.cookies.delete(REFRESH_COOKIE);
+  const backToAccount = () =>
+    clearSession(
+      NextResponse.redirect(new URL("/account", origin))
+    );
 
-  return res;
+  if (!logoutUrlBase.startsWith("http")) {
+    return backToAccount();
+  }
+
+  const idToken = request.cookies.get(CUSTOMER_OAUTH_COOKIES.idToken)?.value;
+  if (!idToken) {
+    return backToAccount();
+  }
+
+  const endSession = new URL(logoutUrlBase);
+  endSession.searchParams.set("id_token_hint", idToken);
+  endSession.searchParams.set("post_logout_redirect_uri", postLogoutRedirectUri);
+
+  return clearSession(NextResponse.redirect(endSession.toString()));
 }

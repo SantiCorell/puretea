@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getCustomerAccountConfig, isCustomerAccountOAuthConfigured } from "@/lib/shopify/customer-account-auth";
+import {
+  CUSTOMER_OAUTH_COOKIES,
+  getCustomerAccountConfig,
+  isCustomerAccountOAuthConfigured,
+} from "@/lib/shopify/customer-account-auth";
 
 const COOKIE_STATE = "puretea_ca_state";
 const COOKIE_VERIFIER = "puretea_ca_verifier";
-const ACCESS_COOKIE = "puretea_customer_access_token";
+const ACCESS_COOKIE = CUSTOMER_OAUTH_COOKIES.accessToken;
 const ACCESS_MAX_AGE = 60 * 60 * 24 * 7; // 7 días máx.; Shopify suele mandar expires_in
 
 export async function GET(request: NextRequest) {
@@ -69,6 +73,7 @@ export async function GET(request: NextRequest) {
     access_token?: string;
     expires_in?: number;
     refresh_token?: string;
+    id_token?: string;
   };
   if (!json.access_token) {
     return failRedirect("no_access_token");
@@ -91,8 +96,18 @@ export async function GET(request: NextRequest) {
   res.cookies.delete(COOKIE_STATE);
   res.cookies.delete(COOKIE_VERIFIER);
 
+  if (json.id_token) {
+    res.cookies.set(CUSTOMER_OAUTH_COOKIES.idToken, json.id_token, {
+      httpOnly: true,
+      secure,
+      sameSite: "lax",
+      path: "/",
+      maxAge,
+    });
+  }
+
   if (json.refresh_token) {
-    res.cookies.set("puretea_customer_refresh_token", json.refresh_token, {
+    res.cookies.set(CUSTOMER_OAUTH_COOKIES.refreshToken, json.refresh_token, {
       httpOnly: true,
       secure,
       sameSite: "lax",

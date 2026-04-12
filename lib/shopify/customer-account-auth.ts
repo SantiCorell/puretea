@@ -26,9 +26,27 @@ export function getCustomerAccountConfig() {
   const redirectUri =
     process.env.NEXT_PUBLIC_CUSTOMER_ACCOUNT_REDIRECT_URI?.trim() ||
     `${siteUrl}/api/auth/customer/callback`;
+  /** Debe estar en Shopify → API cuenta cliente → URI de cierre de sesión (exacta). */
+  const postLogoutRedirectUri =
+    process.env.NEXT_PUBLIC_CUSTOMER_POST_LOGOUT_REDIRECT_URI?.trim() ||
+    `${siteUrl}/account`;
 
-  return { clientId, authorizeUrl, tokenUrl, redirectUri, siteUrl };
+  return {
+    clientId,
+    authorizeUrl,
+    tokenUrl,
+    redirectUri,
+    siteUrl,
+    postLogoutRedirectUri,
+  };
 }
+
+/** Nombres de cookies OAuth (Customer Account API). */
+export const CUSTOMER_OAUTH_COOKIES = {
+  accessToken: "puretea_customer_access_token",
+  refreshToken: "puretea_customer_refresh_token",
+  idToken: "puretea_customer_id_token",
+} as const;
 
 export function isCustomerAccountOAuthConfigured(): boolean {
   const c = getCustomerAccountConfig();
