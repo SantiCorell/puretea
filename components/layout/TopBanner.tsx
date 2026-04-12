@@ -1,5 +1,3 @@
-"use client";
-
 const BANNER_ITEMS = [
   "Envíos gratis a partir de 50€",
   "Envíos a toda Europa",

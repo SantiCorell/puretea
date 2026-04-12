@@ -10,6 +10,8 @@ export const fontSatoshi = DM_Sans({
   subsets: ["latin"],
   variable: "--font-satoshi",
   display: "swap",
+  adjustFontFallback: true,
+  preload: true,
 });
 
 /**
@@ -22,4 +24,6 @@ export const fontCanela = Cormorant_Garamond({
   subsets: ["latin"],
   variable: "--font-canela",
   display: "swap",
+  adjustFontFallback: true,
+  preload: true,
 });

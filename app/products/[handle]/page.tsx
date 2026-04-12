@@ -31,8 +31,8 @@ function formatPrice(amount: string, currency: string): string {
   }).format(parseFloat(amount));
 }
 
-/** En Shopify la descripción viene en HTML; el separador entre secciones es <p>---</p>. No se muestra en la UI. */
-const DESCRIPTION_SEPARATOR = /\s*<p>\s*---\s*<\/p>\s*/gi;
+/** En Shopify la descripción viene en HTML; el separador entre secciones es <p>---</p> (con o sin atributos). */
+const DESCRIPTION_SEPARATOR = /\s*<p[^>]*>\s*---\s*<\/p>\s*/gi;
 
 /** También aceptar separador en texto plano por si acaso. */
 const DESCRIPTION_SEPARATOR_PLAIN = /\s*---\s*/;
@@ -54,12 +54,12 @@ function parseSection(section: string): { title: string; contentHtml: string } {
   const isHtml = trimmed.includes("<") && trimmed.includes(">");
 
   if (isHtml) {
-    const resumenMatch = trimmed.match(/^\s*<p>\s*RESUMEN\s*<\/p>\s*/i);
+    const resumenMatch = trimmed.match(/^\s*<p[^>]*>\s*RESUMEN\s*<\/p>\s*/i);
     if (resumenMatch) {
       const content = trimmed.slice(resumenMatch[0].length).trim();
       return { title: "RESUMEN", contentHtml: content || "" };
     }
-    const firstP = trimmed.match(/<p>([\s\S]*?)<\/p>/i);
+    const firstP = trimmed.match(/<p[^>]*>([\s\S]*?)<\/p>/i);
     if (firstP && firstP.index !== undefined) {
       const title = stripHtml(firstP[1]);
       const content = trimmed.slice(firstP.index + firstP[0].length).trim();
@@ -88,7 +88,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
 
   // Priorizar descriptionHtml para respetar el formato de Shopify (<p>---</p> entre secciones)
   const rawDescription = (product.descriptionHtml || product.description || "").trim();
-  const isHtmlDescription = rawDescription.includes("<p>") && rawDescription.includes("</p>");
+  const isHtmlDescription = /<p\b/i.test(rawDescription) && /<\/p>/i.test(rawDescription);
   const sections = (
     isHtmlDescription
       ? rawDescription.split(new RegExp(DESCRIPTION_SEPARATOR.source, "gi"))

@@ -4,6 +4,7 @@
  * and configuring Storefront API env vars.
  */
 
+import { unstable_cache } from "next/cache";
 import { isShopifyConfigured } from "@/lib/shopify/client";
 import type { ShopifyProduct, ShopifyCollection } from "@/lib/shopify/types";
 
@@ -171,23 +172,42 @@ async function getCollectionByHandleFromSource(
   return getMockCollectionByHandle(handle, options);
 }
 
+const REVALIDATE_COLLECTIONS = 120;
+const REVALIDATE_PRODUCTS = 60;
+const REVALIDATE_PRODUCT_DETAIL = 120;
+
 /** Get products (paginated). Used by /shop and category pages. */
 export async function getProducts(options?: {
   first?: number;
   query?: string;
   after?: string;
 }): Promise<{ products: Product[]; pageInfo?: { hasNextPage: boolean; endCursor: string | null } }> {
-  return getProductsFromSource(options);
+  const first = options?.first ?? 48;
+  const query = options?.query ?? "";
+  const after = options?.after ?? "";
+  return unstable_cache(
+    async () => getProductsFromSource(options),
+    ["puretea-products", String(first), query, after],
+    { revalidate: REVALIDATE_PRODUCTS }
+  )();
 }
 
 /** Get single product by handle. Used by /product/[slug]. */
 export async function getProductByHandle(handle: string): Promise<Product | null> {
-  return getProductByHandleFromSource(handle);
+  return unstable_cache(
+    async () => getProductByHandleFromSource(handle),
+    ["puretea-product", handle],
+    { revalidate: REVALIDATE_PRODUCT_DETAIL }
+  )();
 }
 
 /** Get all collections. Used by /collections. */
 export async function getCollections(): Promise<Collection[]> {
-  return getCollectionsFromSource();
+  return unstable_cache(
+    async () => getCollectionsFromSource(),
+    ["puretea-collections"],
+    { revalidate: REVALIDATE_COLLECTIONS }
+  )();
 }
 
 /** Get collection by handle with products. Used by /category/[slug]. */
@@ -195,5 +215,10 @@ export async function getCollectionByHandle(
   handle: string,
   options?: { productsFirst?: number }
 ): Promise<Collection | null> {
-  return getCollectionByHandleFromSource(handle, options);
+  const productsFirst = options?.productsFirst ?? 24;
+  return unstable_cache(
+    async () => getCollectionByHandleFromSource(handle, options),
+    ["puretea-collection", handle, String(productsFirst)],
+    { revalidate: REVALIDATE_PRODUCTS }
+  )();
 }

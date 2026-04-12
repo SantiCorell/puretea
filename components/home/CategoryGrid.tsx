@@ -21,7 +21,7 @@ export function CategoryGrid({ categories }: CategoryGridProps) {
         </h2>
         {/* Mobile: carrusel horizontal de categorías */} 
         <div className="flex gap-4 overflow-x-auto sm:hidden -mx-4 px-4 pb-2 snap-x snap-mandatory">
-          {categories.map((cat) => (
+          {categories.map((cat, index) => (
             <Link
               key={cat.handle}
               href={`/category/${cat.handle}`}
@@ -32,6 +32,7 @@ export function CategoryGrid({ categories }: CategoryGridProps) {
                   src={cat.image}
                   alt={cat.title}
                   fill
+                  priority={index < 2}
                   className="object-cover group-hover:scale-105 transition-transform duration-300"
                   sizes="70vw"
                 />
@@ -49,7 +50,7 @@ export function CategoryGrid({ categories }: CategoryGridProps) {
         </div>
         {/* Tablet / Desktop: grid clásica */}
         <div className="hidden sm:grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
-          {categories.map((cat) => (
+          {categories.map((cat, index) => (
             <Link
               key={cat.handle}
               href={`/category/${cat.handle}`}
@@ -60,6 +61,7 @@ export function CategoryGrid({ categories }: CategoryGridProps) {
                   src={cat.image}
                   alt={cat.title}
                   fill
+                  priority={index < 5}
                   className="object-cover group-hover:scale-105 transition-transform duration-300"
                   sizes="(max-width: 1024px) 33vw, 20vw"
                 />

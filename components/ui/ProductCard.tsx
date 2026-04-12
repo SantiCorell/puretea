@@ -11,6 +11,8 @@ interface ProductCardProps {
   /** Base path for product link (default: /product) */
   productPageBase?: string;
   shopifyDomain?: string;
+  /** Priorizar LCP en rejillas (primeras tarjetas visibles) */
+  imagePriority?: boolean;
 }
 
 function formatPrice(amount: string, currency: string): string {
@@ -24,6 +26,7 @@ export function ProductCard({
   product,
   productPageBase = "/product",
   shopifyDomain,
+  imagePriority = false,
 }: ProductCardProps) {
   const [selectedVariantIndex, setSelectedVariantIndex] = useState(0);
   const [qty, setQty] = useState(1);
@@ -47,6 +50,7 @@ export function ProductCard({
             src={image}
             alt={product.featuredImage?.altText ?? product.title}
             fill
+            priority={imagePriority}
             className={`object-cover group-hover:scale-105 transition-transform duration-500 ${soldOut ? "opacity-75" : ""}`}
             sizes="(max-width: 768px) 50vw, 25vw"
           />

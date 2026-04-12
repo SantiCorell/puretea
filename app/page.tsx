@@ -1,18 +1,41 @@
+import dynamic from "next/dynamic";
 import { getCollections, getProducts } from "@/lib/data";
 import { Hero } from "@/components/home/Hero";
 import { CategoryGrid } from "@/components/home/CategoryGrid";
 import { ProductGrid } from "@/components/ui/ProductGrid";
 import { BenefitsSection } from "@/components/home/BenefitsSection";
 import { StatsSection } from "@/components/home/StatsSection";
-import { ReviewsSection } from "@/components/home/ReviewsSection";
 import { CTASection } from "@/components/ui/CTASection";
-import { HomeFAQ } from "@/components/home/HomeFAQ";
 import { ConversionStrip } from "@/components/home/ConversionStrip";
 import { WhyPureTea } from "@/components/home/WhyPureTea";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 import { organizationSchema, websiteSchema, faqSchema } from "@/lib/seo/schema";
 
-// ⚠️  ShopifyDebug import REMOVED — was causing the Vercel client-side exception
+const ReviewsSection = dynamic(
+  () =>
+    import("@/components/home/ReviewsSection").then((m) => ({
+      default: m.ReviewsSection,
+    })),
+  {
+    loading: () => (
+      <div className="min-h-[280px] py-16 lg:py-24 px-4" aria-hidden />
+    ),
+  }
+);
+
+const HomeFAQ = dynamic(
+  () =>
+    import("@/components/home/HomeFAQ").then((m) => ({
+      default: m.HomeFAQ,
+    })),
+  {
+    loading: () => (
+      <div className="min-h-[320px] py-16 lg:py-24 px-4 bg-white" aria-hidden />
+    ),
+  }
+);
+
+export const revalidate = 120;
 
 const HOME_FAQ = [
   {

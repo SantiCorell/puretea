@@ -1,4 +1,6 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
+import { Analytics } from "@vercel/analytics/react";
 import "./globals.css";
 import { TopBanner } from "@/components/layout/TopBanner";
 import { Navbar } from "@/components/layout/Navbar";
@@ -30,6 +32,12 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#0F2E23",
+};
+
 const FALLBACK_COLLECTIONS = [
   { handle: "matcha", title: "Matcha" },
   { handle: "green-tea", title: "Té verde" },
@@ -58,6 +66,10 @@ export default async function RootLayout({
       lang="es"
       className={`${fontSatoshi.variable} ${fontCanela.variable} scroll-smooth`}
     >
+      <head>
+        <link rel="preconnect" href="https://cdn.shopify.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://cdn.shopify.com" />
+      </head>
       <body className="min-h-screen flex flex-col bg-[#fdfcf9] antialiased">
         <CartProvider>
           <TopBanner />
@@ -69,6 +81,12 @@ export default async function RootLayout({
           <CartDrawer /> 
           <FloatingCartButton />
           <Footer />
+          {process.env.NODE_ENV === "production" ? (
+            <>
+              <SpeedInsights />
+              <Analytics />
+            </>
+          ) : null}
         </CartProvider>
       </body>
     </html>

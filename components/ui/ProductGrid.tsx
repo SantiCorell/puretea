@@ -33,7 +33,7 @@ export function ProductGrid({
           className="grid grid-rows-2 auto-cols-[48%] grid-flow-col gap-4 overflow-x-auto pb-4 snap-x snap-mandatory"
           role="list"
         >
-          {products.map((product) => (
+          {products.map((product, index) => (
             <div
               key={product.id}
               role="listitem"
@@ -43,6 +43,7 @@ export function ProductGrid({
                 product={product}
                 productPageBase={productPageBase}
                 shopifyDomain={shopifyDomain}
+                imagePriority={index < 4}
               />
             </div>
           ))}
@@ -54,12 +55,13 @@ export function ProductGrid({
         className="hidden sm:grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
         role="list"
       >
-        {products.map((product) => (
+        {products.map((product, index) => (
           <div key={product.id} role="listitem">
-            <ProductCard 
-              product={product} 
-              productPageBase={productPageBase} 
-              shopifyDomain={shopifyDomain} 
+            <ProductCard
+              product={product}
+              productPageBase={productPageBase}
+              shopifyDomain={shopifyDomain}
+              imagePriority={index < 4}
             />
           </div>
         ))}
