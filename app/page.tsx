@@ -8,6 +8,7 @@ import { StatsSection } from "@/components/home/StatsSection";
 import { CTASection } from "@/components/ui/CTASection";
 import { ConversionStrip } from "@/components/home/ConversionStrip";
 import { WhyPureTea } from "@/components/home/WhyPureTea";
+import { HomeSeoBlock } from "@/components/home/HomeSeoBlock";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 import { organizationSchema, websiteSchema, faqSchema } from "@/lib/seo/schema";
 
@@ -104,6 +105,7 @@ export default async function HomePage() {
       <ConversionStrip />
       <WhyPureTea />
       <StatsSection />
+      <HomeSeoBlock />
       <CategoryGrid categories={categories} />
       <section
         className="py-16 lg:py-24 px-4 sm:px-6 lg:px-8 bg-puretea-cream"

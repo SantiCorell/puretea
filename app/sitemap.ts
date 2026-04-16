@@ -7,21 +7,23 @@ const BASE_URL = (
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.puretea.es"
 ).replace(/\/$/, "");
 
-/** Rutas estáticas principales para SEO */
+const now = () => new Date();
+
+/** Rutas estáticas indexables (sin paginación ni duplicados de bajo valor). */
 const STATIC_ROUTES: MetadataRoute.Sitemap = [
-  { url: BASE_URL, lastModified: new Date(), changeFrequency: "daily", priority: 1 },
-  { url: `${BASE_URL}/shop`, lastModified: new Date(), changeFrequency: "daily", priority: 0.95 },
-  { url: `${BASE_URL}/products`, lastModified: new Date(), changeFrequency: "daily", priority: 0.95 },
-  { url: `${BASE_URL}/blog`, lastModified: new Date(), changeFrequency: "daily", priority: 0.9 },
-  { url: `${BASE_URL}/about`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.8 },
-  { url: `${BASE_URL}/benefits`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.8 },
-  { url: `${BASE_URL}/contact`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.7 },
-  { url: `${BASE_URL}/how-to-brew`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.85 },
-  { url: `${BASE_URL}/collections`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.85 },
-  { url: `${BASE_URL}/creators`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.55 },
-  { url: `${BASE_URL}/legal/privacy`, lastModified: new Date(), changeFrequency: "yearly", priority: 0.35 },
-  { url: `${BASE_URL}/legal/terms`, lastModified: new Date(), changeFrequency: "yearly", priority: 0.35 },
-  { url: `${BASE_URL}/legal/returns`, lastModified: new Date(), changeFrequency: "yearly", priority: 0.45 },
+  { url: BASE_URL, lastModified: now(), changeFrequency: "daily", priority: 1 },
+  { url: `${BASE_URL}/shop`, lastModified: now(), changeFrequency: "daily", priority: 0.95 },
+  { url: `${BASE_URL}/products`, lastModified: now(), changeFrequency: "daily", priority: 0.95 },
+  { url: `${BASE_URL}/blog`, lastModified: now(), changeFrequency: "daily", priority: 0.9 },
+  { url: `${BASE_URL}/about`, lastModified: now(), changeFrequency: "monthly", priority: 0.8 },
+  { url: `${BASE_URL}/benefits`, lastModified: now(), changeFrequency: "monthly", priority: 0.8 },
+  { url: `${BASE_URL}/contact`, lastModified: now(), changeFrequency: "monthly", priority: 0.7 },
+  { url: `${BASE_URL}/how-to-brew`, lastModified: now(), changeFrequency: "monthly", priority: 0.85 },
+  { url: `${BASE_URL}/collections`, lastModified: now(), changeFrequency: "weekly", priority: 0.85 },
+  { url: `${BASE_URL}/creators`, lastModified: now(), changeFrequency: "monthly", priority: 0.55 },
+  { url: `${BASE_URL}/legal/privacy`, lastModified: now(), changeFrequency: "yearly", priority: 0.35 },
+  { url: `${BASE_URL}/legal/terms`, lastModified: now(), changeFrequency: "yearly", priority: 0.35 },
+  { url: `${BASE_URL}/legal/returns`, lastModified: now(), changeFrequency: "yearly", priority: 0.45 },
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -30,78 +32,64 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     url: entry.url.replace(/\/$/, ""),
   }));
 
-  // Productos: /products/[handle]
   let productUrls: MetadataRoute.Sitemap = [];
   try {
     const { products } = await getProducts({ first: 250 });
     productUrls = products.map((p) => ({
       url: `${BASE_URL}/products/${p.handle}`,
-      lastModified: new Date(),
+      lastModified: now(),
       changeFrequency: "weekly" as const,
       priority: 0.9,
     }));
   } catch {
-    // Si falla Shopify/mock, sitemap sigue con el resto
+    /* vacío */
   }
 
-  // Categorías: /category/[slug]
-  let categoryUrls: MetadataRoute.Sitemap = [];
   const categorySlugs = [
     "matcha",
     "green-tea",
     "black-tea",
     "herbal-tea",
     "wellness-blends",
-    "frontpage",
   ];
+  let categoryUrls: MetadataRoute.Sitemap = [];
   try {
     const collections = await getCollections();
     const handles = new Set(collections.map((c) => c.handle));
     categorySlugs.forEach((slug) => handles.add(slug));
-    categoryUrls = [...handles].map((handle) => ({
-      url: `${BASE_URL}/category/${handle}`,
-      lastModified: new Date(),
-      changeFrequency: "weekly" as const,
-      priority: 0.85,
-    }));
+    categoryUrls = [...handles]
+      .filter((handle) => handle && handle !== "frontpage")
+      .map((handle) => ({
+        url: `${BASE_URL}/category/${handle}`,
+        lastModified: now(),
+        changeFrequency: "weekly" as const,
+        priority: 0.88,
+      }));
   } catch {
     categoryUrls = categorySlugs.map((handle) => ({
       url: `${BASE_URL}/category/${handle}`,
-      lastModified: new Date(),
+      lastModified: now(),
       changeFrequency: "weekly" as const,
-      priority: 0.85,
+      priority: 0.88,
     }));
   }
 
-  // Blog: /blog/[slug]
+  /** Solo artículos; sin /blog?page= (paginación no indexable en sitemap). */
   const blogUrls: MetadataRoute.Sitemap = BLOG_POSTS.map((post) => ({
     url: `${BASE_URL}/blog/${post.slug}`,
     lastModified: post.updated ? new Date(post.updated) : new Date(post.date),
     changeFrequency: "monthly" as const,
-    priority: 0.75,
+    priority: 0.78,
   }));
-  const BLOG_POSTS_PER_PAGE = 9;
-  const blogPages = Math.ceil(BLOG_POSTS.length / BLOG_POSTS_PER_PAGE);
-  const blogPaginationUrls: MetadataRoute.Sitemap = Array.from(
-    { length: Math.max(0, blogPages - 1) },
-    (_, i) => ({
-      url: `${BASE_URL}/blog?page=${i + 2}`,
-      lastModified: new Date(),
-      changeFrequency: "weekly" as const,
-      priority: 0.6,
-    })
-  );
 
-  // Landings SEO: /[slug]
   const seoLandings = getAllSeoLandings();
   const seoUrls: MetadataRoute.Sitemap = seoLandings.map((p) => ({
     url: `${BASE_URL}/${p.slug}`,
-    lastModified: new Date(),
+    lastModified: now(),
     changeFrequency: p.changeFrequency,
     priority: p.priority,
   }));
 
-  // Evitar duplicar /comprar-te si ya está en static con distinta prioridad: dedupe por URL
   const seen = new Set<string>();
   const merged: MetadataRoute.Sitemap = [];
   for (const entry of [
@@ -110,7 +98,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...productUrls,
     ...categoryUrls,
     ...blogUrls,
-    ...blogPaginationUrls,
   ]) {
     const u = entry.url.replace(/\/$/, "");
     if (seen.has(u)) continue;

@@ -6,6 +6,9 @@ import { getProductByHandle } from "@/lib/data";
 import { FAQ } from "@/components/ui/FAQ";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 import { articleSchema, faqSchema } from "@/lib/seo/schema";
+import { getBlogAeo, getCategoryHrefForBlog } from "@/lib/seo/blog-aeo";
+import { BlogBuyIntentBlock } from "@/components/blog/BlogBuyIntentBlock";
+import { BlogInternalNav } from "@/components/blog/BlogInternalNav";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -96,6 +99,21 @@ export default async function BlogPostPage({ params }: PageProps) {
     CATEGORY_EXPANSION[post.category] ??
     CATEGORY_EXPANSION.Wellness;
 
+  const aeo = getBlogAeo(post.slug, post.category);
+  const categoryHref = getCategoryHrefForBlog(post.category);
+  const categoryNavLabel =
+    categoryHref === "/category/matcha"
+      ? "Matcha"
+      : categoryHref === "/category/green-tea"
+        ? "Té verde"
+        : categoryHref === "/category/black-tea"
+          ? "Té negro"
+          : categoryHref === "/category/herbal-tea"
+            ? "Infusiones"
+            : categoryHref === "/shop"
+              ? "Tienda"
+              : "Wellness";
+
   return (
     <>
       <script
@@ -146,6 +164,13 @@ export default async function BlogPostPage({ params }: PageProps) {
             })}
           </time>
         </header>
+        <section
+          className="mt-8 rounded-2xl border border-puretea-organic/25 bg-puretea-organic/5 p-5 sm:p-6"
+          aria-label="Resumen para lectura rápida"
+        >
+          <h2 className="font-canela text-xl sm:text-2xl text-puretea-dark">{aeo.h2}</h2>
+          <p className="mt-3 text-puretea-dark/90 leading-relaxed">{aeo.answer}</p>
+        </section>
         <section className="mt-8 rounded-2xl border border-puretea-sand/70 bg-puretea-cream/40 p-5 sm:p-6">
           <h2 className="font-canela text-2xl text-puretea-dark">{expansion.title}</h2>
           <ul className="mt-4 grid gap-2 sm:grid-cols-3">
@@ -160,6 +185,8 @@ export default async function BlogPostPage({ params }: PageProps) {
           className="mt-8 prose prose-neutral prose-lg max-w-none text-puretea-dark/90 prose-headings:font-canela prose-headings:text-puretea-dark prose-a:text-puretea-organic prose-a:no-underline hover:prose-a:underline prose-h2:mt-12 prose-h2:mb-4 prose-h2:text-2xl prose-p:leading-relaxed"
           dangerouslySetInnerHTML={{ __html: post.content }}
         />
+        <BlogInternalNav categoryHref={categoryHref} categoryLabel={categoryNavLabel} />
+        <BlogBuyIntentBlock />
         <section
           className="mt-10 rounded-2xl border border-puretea-sand/70 bg-white p-5 sm:p-6"
           aria-labelledby="deep-dive-title"
