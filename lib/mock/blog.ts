@@ -166,6 +166,28 @@ const LONG = {
 <h2>Catálogo PureTea</h2>
 <p><a href="/te-para-dormir-relajacion">Té para dormir</a> · <a href="/category/herbal-tea">Infusiones</a> · <a href="/blog/herbal-teas-for-sleep">Artículo infusiones para dormir</a></p>
 `,
+  matchaRecipesTrend: `
+<h2>Las recetas de matcha virales que sí merecen la pena</h2>
+<p>En 2026, TikTok e Instagram han llenado el feed de recetas de matcha: strawberry matcha, coconut matcha cloud y versiones "protein matcha". No todo lo viral es bueno, pero hay una tendencia clara: bebidas más limpias, con menos azúcar y mejor calidad de té. Si usas matcha ceremonial japonés, incluso una receta simple queda por encima de cualquier mezcla artificial.</p>
+<h2>Top 3 recetas para casa (rápidas y rentables)</h2>
+<p><strong>1) Strawberry Matcha limpio:</strong> puré de fresa natural + hielo + leche + matcha batido aparte.<br/>
+<strong>2) Coconut Matcha:</strong> agua de coco fría + matcha + lima suave.<br/>
+<strong>3) Protein Matcha Latte:</strong> matcha + bebida vegetal + proteína neutra de calidad.<br/>
+El truco en todas: batir el matcha con poca agua primero y no usar agua hirviendo.</p>
+<h2>Cómo vender mejor estas recetas en tienda online</h2>
+<p>Si compras té online para estas recetas, prioriza matcha de origen Japón, frescura y un perfil de sabor suave. En PureTea recomendamos empezar por matcha ceremonial y luego experimentar. Puedes ampliar con nuestra guía de <a href="/blog/how-to-prepare-matcha-properly">preparación de matcha</a> para evitar el sabor amargo típico de recetas mal ejecutadas.</p>
+`,
+  teaMocktailsTrend: `
+<h2>Tea Mocktails: la gran tendencia sin alcohol</h2>
+<p>Los <strong>tea mocktails</strong> son una de las búsquedas más fuertes de bienestar: cócteles sin alcohol con base de té, botánicos y cítricos. Funcionan porque combinan ritual social con menos calorías y sin resaca. El té aporta estructura de sabor y permite crear combinaciones premium para brunch, tardeo o cenas.</p>
+<h2>Combinaciones top de 2026</h2>
+<p><strong>Mocktail 1:</strong> Earl Grey + piel de naranja + tónica seca.<br/>
+<strong>Mocktail 2:</strong> té verde frío + pepino + lima + menta.<br/>
+<strong>Mocktail 3:</strong> hibisco/infusión herbal + frutos rojos + agua con gas.<br/>
+Para un resultado elegante, enfría la infusión en frío y evita endulzar en exceso.</p>
+<h2>Qué comprar para montar un bar de té en casa</h2>
+<p>Con tres bases bien elegidas (té negro aromático, té verde y una infusión herbal) cubres casi cualquier mocktail. En PureTea puedes combinar un Earl Grey premium, un sencha limpio y una infusión relajante para crear carta sin alcohol en casa. Si quieres ideas de regalo, enlaza con nuestra guía de <a href="/blog/regalos-te-original-pareja-amigo">regalos de té</a>.</p>
+`,
 };
 
 export const BLOG_POSTS: BlogPost[] = [
@@ -316,6 +338,42 @@ export const BLOG_POSTS: BlogPost[] = [
     date: "2024-10-20",
     category: "Bienestar",
     relatedProducts: ["ceremonial-matcha", "sencha-organic"],
+  },
+  {
+    slug: "recetas-matcha-virales-2026",
+    title: "Recetas de matcha virales (2026): las 3 que sí funcionan",
+    excerpt:
+      "Strawberry matcha, coconut matcha y protein matcha latte: versiones limpias y fáciles para casa. Tendencias reales y cómo hacerlas bien.",
+    content:
+      "<p>El matcha viral está en todas partes, pero la mayoría de recetas fallan por una base pobre o mala técnica. Aquí tienes las 3 que mejor convierten sabor, salud y estética.</p>" +
+      LONG.matchaRecipesTrend,
+    image: "/images/blog/how-to-matcha.png",
+    date: "2026-04-22",
+    category: "Tendencias",
+    faqs: [
+      {
+        question: "¿Qué matcha usar para recetas virales?",
+        answer: "Para beber (lattes, bebidas frías) usa matcha ceremonial o premium de Japón; el culinario suele amargar más.",
+      },
+      {
+        question: "¿Se puede hacer matcha viral sin azúcar?",
+        answer: "Sí. Usa fruta natural, leche vegetal sin azúcar y ajusta dulzor con muy poca cantidad de miel o stevia si lo necesitas.",
+      },
+    ],
+    relatedProducts: ["ceremonial-matcha"],
+  },
+  {
+    slug: "tea-mocktails-sin-alcohol-tendencia",
+    title: "Tea Mocktails sin alcohol: tendencia top para eventos en casa",
+    excerpt:
+      "Cómo preparar mocktails con té (sin alcohol) con perfil premium: combinaciones, técnica y selección de tés.",
+    content:
+      "<p>Si quieres una alternativa elegante al alcohol, los tea mocktails son la tendencia más fuerte de bienestar social. Aquí tienes guía práctica para montarlo en casa.</p>" +
+      LONG.teaMocktailsTrend,
+    image: "/images/blog/earl-grey.png",
+    date: "2026-04-21",
+    category: "Tendencias",
+    relatedProducts: ["earl-grey-premium", "sencha-organic", "chamomile-lavender"],
   },
   {
     slug: "guia-comprar-te-online-espana",

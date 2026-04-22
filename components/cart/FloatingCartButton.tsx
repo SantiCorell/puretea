@@ -17,7 +17,7 @@ function formatPrice(amount: string, currency: string) {
 
 export function FloatingCartButton() {
   const pathname = usePathname();
-  const { totalItems, cart, startCheckout } = useCart();
+  const { totalItems, cart, startCheckout, isMutating, isCheckingOut } = useCart();
 
   const subtotal = cart?.cost?.subtotalAmount?.amount ?? null;
   const currency = cart?.cost?.subtotalAmount?.currencyCode ?? "EUR";
@@ -29,7 +29,8 @@ export function FloatingCartButton() {
     <button
       type="button"
       onClick={startCheckout}
-      className="fixed bottom-5 right-4 z-40 flex items-center gap-2 rounded-full bg-puretea-dark text-puretea-cream px-4 py-3 shadow-xl shadow-puretea-dark/30 md:bottom-7 md:right-6 md:px-5 md:py-3.5 md:text-sm lg:hidden"
+      disabled={isMutating || isCheckingOut}
+      className="fixed bottom-5 right-4 z-40 flex items-center gap-2 rounded-full bg-puretea-dark text-puretea-cream px-4 py-3 shadow-xl shadow-puretea-dark/30 md:bottom-7 md:right-6 md:px-5 md:py-3.5 md:text-sm lg:hidden disabled:opacity-60 disabled:cursor-not-allowed"
       aria-label="Ver carrito y proceder al pago"
     >
       <div className="relative">
@@ -39,7 +40,7 @@ export function FloatingCartButton() {
       </div>
       <div className="flex flex-col items-start">
         <span className="text-[11px] uppercase tracking-widest font-semibold">
-          Ir al checkout
+          {isCheckingOut ? "Abriendo checkout..." : "Ir al checkout"}
         </span>
         {subtotal && (
           <span className="text-xs font-semibold opacity-80">

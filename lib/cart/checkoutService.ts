@@ -39,25 +39,39 @@ async function ensureCheckoutByApi(): Promise<Cart> {
 }
 
 export async function resolveCheckoutUrlFromCart(cart: Cart | null): Promise<string> {
+  if (cart && cart.lines.length === 0) {
+    throw new Error("Tu carrito está vacío. Añade productos antes de continuar al checkout.");
+  }
+
   const immediate = normalizeCheckoutUrl(cart?.checkoutUrl);
   if (immediate) {
     writeStoredCheckoutUrl(immediate);
     return immediate;
   }
 
-  const fromStorage = normalizeCheckoutUrl(readStoredCheckoutUrl());
-  if (fromStorage) return fromStorage;
-
   const latest = await getCartSnapshot();
+  if (latest && latest.lines.length === 0) {
+    throw new Error("Tu carrito está vacío. Añade productos antes de continuar al checkout.");
+  }
   const fromLatest = normalizeCheckoutUrl(latest?.checkoutUrl);
   if (fromLatest) {
     writeStoredCheckoutUrl(fromLatest);
     return fromLatest;
   }
 
-  const ensured = await ensureCheckoutByApi();
-  const recovered = normalizeCheckoutUrl(ensured.checkoutUrl);
-  if (!recovered) throw new Error("No se pudo generar una URL de checkout válida");
-  writeStoredCheckoutUrl(recovered);
-  return recovered;
+  try {
+    const ensured = await ensureCheckoutByApi();
+    if (!ensured.lines.length) {
+      throw new Error("No se pudo preparar el checkout con productos válidos.");
+    }
+    const recovered = normalizeCheckoutUrl(ensured.checkoutUrl);
+    if (!recovered) throw new Error("No se pudo generar una URL de checkout válida");
+    writeStoredCheckoutUrl(recovered);
+    return recovered;
+  } catch {
+    // Último recurso para UX offline/transitoria.
+    const fromStorage = normalizeCheckoutUrl(readStoredCheckoutUrl());
+    if (fromStorage) return fromStorage;
+    throw new Error("No se pudo recuperar el checkout");
+  }
 }

@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
 import { ProductCard } from "./ProductCard";
 import type { Product } from "@/lib/data";
 
@@ -16,6 +19,14 @@ export function ProductGrid({
   productPageBase,
   shopifyDomain 
 }: ProductGridProps) {
+  const mobileRailRef = useRef<HTMLDivElement | null>(null);
+  const [showSwipeHint, setShowSwipeHint] = useState(true);
+
+  useEffect(() => {
+    if (!showSwipeHint) return;
+    const timer = window.setTimeout(() => setShowSwipeHint(false), 5000);
+    return () => window.clearTimeout(timer);
+  }, [showSwipeHint]);
   
   if (!products?.length) {
     return (
@@ -29,8 +40,18 @@ export function ProductGrid({
     <>
       {/* Mobile: carrusel horizontal tipo Temu (2x2 tarjetas visibles) */}
       <div className="sm:hidden -mx-4 px-4">
+        {showSwipeHint && (
+          <div className="mb-3 flex items-center justify-center">
+            <div className="inline-flex items-center gap-2 rounded-full border border-puretea-sand/60 bg-white/90 px-4 py-2 text-[11px] font-semibold uppercase tracking-widest text-puretea-dark/70 shadow-sm animate-pulse">
+              <span className="inline-block animate-bounce">👉</span>
+              Desliza a la derecha
+            </div>
+          </div>
+        )}
         <div
-          className="grid grid-rows-2 auto-cols-[48%] grid-flow-col gap-4 overflow-x-auto pb-4 snap-x snap-mandatory"
+          ref={mobileRailRef}
+          onScroll={() => setShowSwipeHint(false)}
+          className="relative grid grid-rows-2 auto-cols-[48%] grid-flow-col gap-4 overflow-x-auto pb-4 snap-x snap-mandatory"
           role="list"
         >
           {products.map((product, index) => (

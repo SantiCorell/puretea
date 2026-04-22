@@ -172,7 +172,7 @@ export function CartView() {
         <button
           type="button"
           onClick={startCheckout}
-          disabled={isCheckingOut}
+          disabled={isCheckingOut || isMutating}
           className="w-full bg-puretea-dark text-puretea-cream rounded-full py-5 font-bold text-lg hover:bg-puretea-organic transition-all active:scale-[0.98] shadow-xl shadow-puretea-dark/10 disabled:opacity-50"
         >
           {isCheckingOut ? "Cargando Checkout..." : "Finalizar Pedido"}

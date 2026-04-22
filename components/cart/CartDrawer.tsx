@@ -169,7 +169,7 @@ export default function CartDrawer() {
             <button
               type="button"
               onClick={startCheckout}
-              disabled={isCheckingOut || lines.length === 0}
+              disabled={isCheckingOut || isMutating || lines.length === 0}
               className="w-full bg-puretea-dark text-puretea-cream py-4 rounded-full font-bold hover:bg-puretea-organic transition-all shadow-lg active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isCheckingOut ? 'Redirigiendo...' : 'Finalizar Pedido'}

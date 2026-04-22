@@ -133,12 +133,26 @@ export async function POST(request: NextRequest) {
       let cart = current;
 
       if (!cart) {
-        cart = await withRetry(() => createCartWithLines([]), 1);
+        const res = NextResponse.json(
+          { error: "El carrito no existe o expiró. Añade de nuevo tus productos.", meta: { clientMutationId: mutationId } },
+          { status: 410 }
+        );
+        res.headers.set(MUTATION_HEADER, mutationId);
+        res.headers.set("Set-Cookie", clearCartCookie());
+        return res;
       } else if (!cart.checkoutUrl) {
         const lines = cart.lines.map((line) => ({
           merchandiseId: line.merchandiseId,
           quantity: line.quantity,
         }));
+        if (!lines.length) {
+          const res = NextResponse.json(
+            { error: "Tu carrito está vacío.", meta: { clientMutationId: mutationId } },
+            { status: 400 }
+          );
+          res.headers.set(MUTATION_HEADER, mutationId);
+          return res;
+        }
         cart = await withRetry(() => createCartWithLines(lines), 1);
       }
 

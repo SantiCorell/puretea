@@ -14,7 +14,7 @@ interface CartContextType {
   isCheckingOut: boolean;
   error: string | null;
   totalItems: number;
-  refreshBadge: () => Promise<void>;
+  refreshBadge: () => Promise<Cart | null>;
   addItem: (payload: { variantId: string; quantity: number; productTitle?: string }) => Promise<void>;
   updateLine: (lineId: string, quantity: number) => Promise<void>;
   removeLine: (lineId: string) => Promise<void>;
@@ -42,14 +42,17 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     cartRef.current = cart;
   }, [cart]);
 
-  const refreshBadge = useCallback(async () => {
+  const refreshBadge = useCallback(async (): Promise<Cart | null> => {
     try {
       const freshCart = await getCartSnapshot();
       setCart(freshCart);
+      cartRef.current = freshCart;
       persistCartLocally(freshCart);
       setError(null);
+      return freshCart;
     } catch (e) {
       setError(e instanceof Error ? e.message : 'No se pudo sincronizar el carrito');
+      return cartRef.current;
     } finally {
       setIsHydrating(false);
     }
@@ -198,18 +201,22 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setIsCheckingOut(true);
     setError(null);
     try {
-      const checkoutUrl = await resolveCheckoutUrlFromCart(cart);
+      // Espera a que terminen mutaciones en vuelo (adds/updates) antes de construir checkout.
+      await mutationQueueRef.current.catch(() => undefined);
+      const latestCart = await refreshBadge();
+
+      const checkoutUrl = await resolveCheckoutUrlFromCart(latestCart);
       trackInitiateCheckout({
-        value: Number(cart?.cost.totalAmount.amount ?? 0),
-        currency: cart?.cost.totalAmount.currencyCode ?? 'EUR',
-        num_items: cart?.lines.length ?? 0,
+        value: Number(latestCart?.cost.totalAmount.amount ?? 0),
+        currency: latestCart?.cost.totalAmount.currencyCode ?? 'EUR',
+        num_items: latestCart?.lines.length ?? 0,
       });
       window.location.href = checkoutUrl;
     } catch (e) {
       setError(e instanceof Error ? e.message : 'No se pudo iniciar checkout');
       setIsCheckingOut(false);
     }
-  }, [cart]);
+  }, [refreshBadge]);
 
   const isAddingVariant = useCallback((variantId: string) => {
     return pendingVariantsRef.current.has(variantId);
