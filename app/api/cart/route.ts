@@ -10,7 +10,7 @@ import {
 } from "@/lib/shopify/cart";
 
 const CART_COOKIE = "puretea_cart_id";
-const CART_MAX_AGE = 60 * 60 * 24 * 30; // 30 días
+const CART_MAX_AGE = 60 * 60 * 24; // 1 día
 const CART_HEADER = "x-puretea-cart-id";
 const MUTATION_HEADER = "x-client-mutation-id";
 const RETRY_ATTEMPTS = 2;

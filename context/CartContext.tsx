@@ -200,6 +200,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const startCheckout = useCallback(async () => {
     setIsCheckingOut(true);
     setError(null);
+    const immediateFallbackUrl = cartRef.current?.checkoutUrl ?? null;
     try {
       // Espera a que terminen mutaciones en vuelo (adds/updates) antes de construir checkout.
       await mutationQueueRef.current.catch(() => undefined);
@@ -213,6 +214,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       });
       window.location.href = checkoutUrl;
     } catch (e) {
+      if (immediateFallbackUrl) {
+        window.location.href = immediateFallbackUrl;
+        return;
+      }
       setError(e instanceof Error ? e.message : 'No se pudo iniciar checkout');
       setIsCheckingOut(false);
     }

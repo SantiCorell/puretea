@@ -14,6 +14,7 @@ import { createClientMutationId } from "@/lib/cart/mutation";
 type JsonValue = Record<string, unknown>;
 const RETRY_ATTEMPTS = 2;
 const MUTATION_HEADER = "x-client-mutation-id";
+const REQUEST_TIMEOUT_MS = 12000;
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -50,17 +51,24 @@ async function request<T>(method: "GET" | "POST" | "PATCH" | "DELETE", body?: Js
 
   return withRetry(async () => {
     const cartId = readStoredCartId();
-    const res = await fetch("/api/cart", {
-      method,
-      cache: "no-store",
-      headers: {
-        "Content-Type": "application/json",
-        ...(cartId ? { "x-puretea-cart-id": cartId } : {}),
-        [MUTATION_HEADER]: clientMutationId,
-      },
-      body: body ? JSON.stringify({ ...body, clientMutationId }) : undefined,
-    });
-    return parseApiResponse<T>(res);
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+    try {
+      const res = await fetch("/api/cart", {
+        method,
+        cache: "no-store",
+        signal: controller.signal,
+        headers: {
+          "Content-Type": "application/json",
+          ...(cartId ? { "x-puretea-cart-id": cartId } : {}),
+          [MUTATION_HEADER]: clientMutationId,
+        },
+        body: body ? JSON.stringify({ ...body, clientMutationId }) : undefined,
+      });
+      return parseApiResponse<T>(res);
+    } finally {
+      window.clearTimeout(timeout);
+    }
   });
 }
 
