@@ -22,7 +22,7 @@ export default function CartDrawer() {
   const total = parseFloat(cart?.cost?.totalAmount?.amount ?? '0');
   const remaining = Math.max(0, FREE_SHIPPING_THRESHOLD - total);
   const progressPercentage = Math.min(100, (total / FREE_SHIPPING_THRESHOLD) * 100);
-  const loading = isHydrating || isMutating;
+  const loading = isHydrating || (isMutating && !cart);
 
   if (!isOpen) return null;
 

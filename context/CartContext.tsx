@@ -32,10 +32,15 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [pendingOps, setPendingOps] = useState(0);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const queueByVariantRef = useRef<Map<string, Promise<void>>>(new Map());
-  const queueByLineRef = useRef<Map<string, Promise<void>>>(new Map());
+  const mutationQueueRef = useRef<Promise<void>>(Promise.resolve());
+  const pendingVariantsRef = useRef<Set<string>>(new Set());
   const lastActionByVariantRef = useRef<Map<string, number>>(new Map());
+  const cartRef = useRef<Cart | null>(null);
   const isMutating = pendingOps > 0;
+
+  useEffect(() => {
+    cartRef.current = cart;
+  }, [cart]);
 
   const refreshBadge = useCallback(async () => {
     try {
@@ -55,7 +60,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [refreshBadge]);
 
   useEffect(() => {
+    // Evita refetch agresivo al abrir drawer (provocaba flicker y sensación de lentitud).
     if (!isOpen) return;
+    if (cartRef.current) return;
     void refreshBadge();
   }, [isOpen, refreshBadge]);
 
@@ -66,16 +73,16 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     [cart]
   );
 
-  const optimisticAdd = useCallback((variantId: string, quantity: number, productTitle?: string): Cart | null => {
-    if (!cart) return cart;
-    const existing = cart.lines.find((line) => line.merchandiseId === variantId);
+  const optimisticAdd = useCallback((baseCart: Cart | null, variantId: string, quantity: number, productTitle?: string): Cart | null => {
+    if (!baseCart) return baseCart;
+    const existing = baseCart.lines.find((line) => line.merchandiseId === variantId);
     if (!existing) {
       return {
-        ...cart,
+        ...baseCart,
         lines: [
-          ...cart.lines,
+          ...baseCart.lines,
           {
-            id: `optimistic-${variantId}`,
+            id: `optimistic-${variantId}-${Date.now()}`,
             quantity,
             merchandiseId: variantId,
             product: {
@@ -87,7 +94,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             },
             price: {
               amount: "0",
-              currencyCode: cart.cost.totalAmount.currencyCode,
+              currencyCode: baseCart.cost.totalAmount.currencyCode,
             },
           },
         ],
@@ -95,29 +102,18 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
 
     return {
-      ...cart,
-      lines: cart.lines.map((line) =>
+      ...baseCart,
+      lines: baseCart.lines.map((line) =>
         line.id === existing.id ? { ...line, quantity: line.quantity + quantity } : line
       ),
     };
-  }, [cart]);
+  }, []);
 
-  const enqueueByKey = useCallback(
-    (queueRef: React.MutableRefObject<Map<string, Promise<void>>>, key: string, task: () => Promise<void>) => {
-      const previous = queueRef.current.get(key) ?? Promise.resolve();
-      const next = previous.catch(() => undefined).then(task);
-
-      const cleanup = next.finally(() => {
-        if (queueRef.current.get(key) === cleanup) {
-          queueRef.current.delete(key);
-        }
-      });
-
-      queueRef.current.set(key, cleanup);
-      return next;
-    },
-    []
-  );
+  const enqueueMutation = useCallback((task: () => Promise<void>) => {
+    const run = mutationQueueRef.current.catch(() => undefined).then(task);
+    mutationQueueRef.current = run;
+    return run;
+  }, []);
 
   const addItem = useCallback(
     async ({ variantId, quantity, productTitle }: { variantId: string; quantity: number; productTitle?: string }) => {
@@ -126,11 +122,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       if (now - lastAction < 250) return;
       lastActionByVariantRef.current.set(variantId, now);
 
-      return enqueueByKey(queueByVariantRef, variantId, async () => {
+      pendingVariantsRef.current.add(variantId);
+      return enqueueMutation(async () => {
         setPendingOps((value) => value + 1);
         setError(null);
-        const previous = cart;
-        const optimistic = optimisticAdd(variantId, quantity, productTitle);
+        const previous = cartRef.current;
+        const optimistic = optimisticAdd(previous, variantId, quantity, productTitle);
         if (optimistic) {
           setCart(optimistic);
           persistCartLocally(optimistic);
@@ -154,18 +151,19 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           setError(e instanceof Error ? e.message : 'Error al añadir al carrito');
           throw e;
         } finally {
+          pendingVariantsRef.current.delete(variantId);
           setPendingOps((value) => Math.max(0, value - 1));
         }
       });
     },
-    [cart, optimisticAdd, enqueueByKey]
+    [optimisticAdd, enqueueMutation]
   );
 
   const updateLine = useCallback(async (lineId: string, quantity: number) => {
-    return enqueueByKey(queueByLineRef, lineId, async () => {
+    return enqueueMutation(async () => {
       setPendingOps((value) => value + 1);
       setError(null);
-      const previous = cart;
+      const previous = cartRef.current;
 
       if (previous) {
         const optimistic = {
@@ -190,7 +188,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         setPendingOps((value) => Math.max(0, value - 1));
       }
     });
-  }, [cart, enqueueByKey]);
+  }, [enqueueMutation]);
 
   const removeLine = useCallback(async (lineId: string) => {
     await updateLine(lineId, 0);
@@ -214,7 +212,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [cart]);
 
   const isAddingVariant = useCallback((variantId: string) => {
-    return queueByVariantRef.current.has(variantId);
+    return pendingVariantsRef.current.has(variantId);
   }, []);
 
   return (

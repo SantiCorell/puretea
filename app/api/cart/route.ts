@@ -58,6 +58,17 @@ async function withRetry<T>(fn: () => Promise<T>, retries = RETRY_ATTEMPTS): Pro
   throw lastError instanceof Error ? lastError : new Error("Error inesperado");
 }
 
+function isInvalidCartError(error: unknown): boolean {
+  const message = error instanceof Error ? error.message.toLowerCase() : "";
+  return (
+    message.includes("cart") &&
+    (message.includes("invalid") ||
+      message.includes("not found") ||
+      message.includes("expired") ||
+      message.includes("no se ha podido"))
+  );
+}
+
 /**
  * GET /api/cart
  * Devuelve el carrito actual (por cookie). Incluye checkoutUrl para redirigir al pago.
@@ -156,7 +167,11 @@ export async function POST(request: NextRequest) {
       try {
         cart = await withRetry(() => addLinesToCart(cartId, variantId, quantity));
       } catch (e) {
-        // Carrito inválido o expirado: crear uno nuevo
+        if (!isInvalidCartError(e)) {
+          throw e;
+        }
+
+        // Solo recreamos si el carrito realmente está inválido.
         cart = await withRetry(() => createCart(variantId, quantity));
       }
     } else {
