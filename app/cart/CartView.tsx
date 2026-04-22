@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import type { Cart, CartLine } from "@/lib/shopify/cart";
+import type { CartLine } from "@/lib/shopify/cart";
+import { useCart } from "@/context/CartContext";
 
 function formatPrice(amount: string, currency: string): string {
   try {
@@ -17,73 +17,18 @@ function formatPrice(amount: string, currency: string): string {
 }
 
 export function CartView() {
-  const [cart, setCart] = useState<Cart | null | "loading">("loading");
-  const [error, setError] = useState<string | null>(null);
-  const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const {
+    cart,
+    error,
+    isHydrating,
+    isMutating,
+    isCheckingOut,
+    updateLine,
+    removeLine,
+    startCheckout,
+  } = useCart();
 
-  const fetchCart = useCallback(async () => {
-    setError(null);
-    try {
-      const res = await fetch("/api/cart", { cache: "no-store" });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Error al cargar el carrito");
-      setCart(data.cart);
-    } catch (e) {
-      setCart(null);
-      setError(e instanceof Error ? e.message : "Error al cargar el carrito");
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchCart();
-  }, [fetchCart]);
-
-  const updateQuantity = async (lineId: string, quantity: number) => {
-    if (!cart || typeof cart === "string") return;
-    try {
-      const res = await fetch("/api/cart", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "update", lineId, quantity }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-      setCart(data.cart);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Error al actualizar");
-    }
-  };
-
-  const removeLine = async (lineId: string) => {
-    if (!cart || typeof cart === "string") return;
-    try {
-      const res = await fetch("/api/cart", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "remove", lineId }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-      setCart(data.cart);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Error al eliminar");
-    }
-  };
-
-  const goToCheckout = () => {
-    if (!cart || typeof cart === "string" || !cart.lines?.length) return;
-    setCheckoutLoading(true);
-
-    if (cart.checkoutUrl) {
-      window.location.href = cart.checkoutUrl;
-    } else {
-      const shop =
-        process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN || "puretea-5910.myshopify.com";
-      window.location.href = `https://${shop}/cart`;
-    }
-  };
-
-  if (cart === "loading") {
+  if (isHydrating) {
     return (
       <div className="max-w-3xl mx-auto px-4 py-24">
         <div className="animate-pulse space-y-8">
@@ -97,7 +42,7 @@ export function CartView() {
     );
   }
 
-  if (!cart || !cart.lines || cart.lines.length === 0) {
+  if (!cart || cart.lines.length === 0) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-24 text-center">
         <h1 className="font-canela text-4xl text-puretea-dark mb-6">
@@ -169,9 +114,10 @@ export function CartView() {
                   <button
                     onClick={() =>
                       line.quantity > 1 &&
-                      updateQuantity(line.id, line.quantity - 1)
+                      updateLine(line.id, line.quantity - 1)
                     }
                     className="text-puretea-dark/40 hover:text-puretea-dark font-bold px-2"
+                    disabled={isMutating}
                   >
                     -
                   </button>
@@ -179,8 +125,9 @@ export function CartView() {
                     {line.quantity}
                   </span>
                   <button
-                    onClick={() => updateQuantity(line.id, line.quantity + 1)}
+                    onClick={() => updateLine(line.id, line.quantity + 1)}
                     className="text-puretea-dark/40 hover:text-puretea-dark font-bold px-2"
+                    disabled={isMutating}
                   >
                     +
                   </button>
@@ -190,6 +137,7 @@ export function CartView() {
                   type="button"
                   onClick={() => removeLine(line.id)}
                   className="text-xs font-bold uppercase tracking-tighter text-red-300 hover:text-red-600 transition-colors"
+                  disabled={isMutating}
                 >
                   Eliminar
                 </button>
@@ -223,11 +171,11 @@ export function CartView() {
 
         <button
           type="button"
-          onClick={goToCheckout}
-          disabled={checkoutLoading}
+          onClick={startCheckout}
+          disabled={isCheckingOut}
           className="w-full bg-puretea-dark text-puretea-cream rounded-full py-5 font-bold text-lg hover:bg-puretea-organic transition-all active:scale-[0.98] shadow-xl shadow-puretea-dark/10 disabled:opacity-50"
         >
-          {checkoutLoading ? "Cargando Checkout..." : "Finalizar Pedido"}
+          {isCheckingOut ? "Cargando Checkout..." : "Finalizar Pedido"}
         </button>
       </div>
     </div>

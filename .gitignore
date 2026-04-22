@@ -3,6 +3,11 @@ node_modules
 .turbo
 .vercel
 
+# Playwright
+playwright-report
+test-results
+.playwright
+
 # Environment
 .env
 .env.local

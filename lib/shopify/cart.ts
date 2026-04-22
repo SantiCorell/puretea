@@ -36,6 +36,11 @@ export interface Cart {
   cost: CartCost;
 }
 
+export interface CartLineInput {
+  merchandiseId: string;
+  quantity: number;
+}
+
 type CartFragmentResult = {
   id: string;
   checkoutUrl: string;
@@ -101,10 +106,25 @@ const CART_FRAGMENT = `
   }
 `;
 
+function normalizeCheckoutUrl(rawUrl: string): string {
+  const preferredHost =
+    process.env.NEXT_PUBLIC_CHECKOUT_DOMAIN?.trim() || "checkout.puretea.es";
+
+  if (!rawUrl) return rawUrl;
+
+  try {
+    const parsed = new URL(rawUrl);
+    parsed.host = preferredHost;
+    return parsed.toString();
+  } catch {
+    return rawUrl;
+  }
+}
+
 function normalizeCart(cart: CartFragmentResult): Cart {
   return {
     id: cart.id,
-    checkoutUrl: cart.checkoutUrl,
+    checkoutUrl: normalizeCheckoutUrl(cart.checkoutUrl),
     cost: {
       subtotalAmount: cart.cost.subtotalAmount,
       totalAmount: cart.cost.totalAmount,
@@ -151,7 +171,7 @@ export async function getCart(cartId: string): Promise<Cart | null> {
   }
 }
 
-export async function createCart(variantId: string, quantity: number): Promise<Cart> {
+export async function createCartWithLines(lines: CartLineInput[]): Promise<Cart> {
   const data = await shopifyFetch<{
     cartCreate: {
       cart: CartFragmentResult | null;
@@ -172,14 +192,7 @@ export async function createCart(variantId: string, quantity: number): Promise<C
       }
     }
   `,
-    {
-      lines: [
-        {
-          quantity,
-          merchandiseId: variantId,
-        },
-      ],
-    }
+    { lines }
   );
 
   if (data.cartCreate.userErrors?.length) {
@@ -189,6 +202,15 @@ export async function createCart(variantId: string, quantity: number): Promise<C
     throw new Error("No se ha podido crear el carrito.");
   }
   return normalizeCart(data.cartCreate.cart);
+}
+
+export async function createCart(variantId: string, quantity: number): Promise<Cart> {
+  return createCartWithLines([
+    {
+      quantity,
+      merchandiseId: variantId,
+    },
+  ]);
 }
 
 export async function addLinesToCart(cartId: string, variantId: string, quantity: number): Promise<Cart> {

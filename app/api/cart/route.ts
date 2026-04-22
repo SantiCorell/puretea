@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import {
   getCart,
   createCart,
+  createCartWithLines,
   addLinesToCart,
   updateCartLine,
   removeCartLine,
@@ -11,9 +11,29 @@ import {
 
 const CART_COOKIE = "puretea_cart_id";
 const CART_MAX_AGE = 60 * 60 * 24 * 30; // 30 días
+const CART_HEADER = "x-puretea-cart-id";
+const MUTATION_HEADER = "x-client-mutation-id";
+const RETRY_ATTEMPTS = 2;
 
 function getCartIdFromCookie(request: NextRequest): string | null {
   return request.cookies.get(CART_COOKIE)?.value ?? null;
+}
+
+function getCartIdFromRequest(request: NextRequest): string | null {
+  const fromCookie = getCartIdFromCookie(request);
+  if (fromCookie) return fromCookie;
+  const fromHeader = request.headers.get(CART_HEADER);
+  return fromHeader?.trim() || null;
+}
+
+function getMutationId(request: NextRequest, body?: unknown): string {
+  const fromHeader = request.headers.get(MUTATION_HEADER)?.trim();
+  if (fromHeader) return fromHeader;
+  if (body && typeof body === "object" && "clientMutationId" in body) {
+    const value = (body as { clientMutationId?: unknown }).clientMutationId;
+    if (typeof value === "string" && value.trim()) return value.trim();
+  }
+  return `srv_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
 }
 
 function setCartCookie(cartId: string) {
@@ -24,26 +44,51 @@ function clearCartCookie() {
   return `${CART_COOKIE}=; Path=/; Max-Age=0`;
 }
 
+async function withRetry<T>(fn: () => Promise<T>, retries = RETRY_ATTEMPTS): Promise<T> {
+  let lastError: unknown;
+  for (let i = 0; i <= retries; i++) {
+    try {
+      return await fn();
+    } catch (error) {
+      lastError = error;
+      if (i === retries) break;
+      await new Promise((resolve) => setTimeout(resolve, 120 * (i + 1)));
+    }
+  }
+  throw lastError instanceof Error ? lastError : new Error("Error inesperado");
+}
+
 /**
  * GET /api/cart
  * Devuelve el carrito actual (por cookie). Incluye checkoutUrl para redirigir al pago.
  */
 export async function GET(request: NextRequest) {
+  const mutationId = getMutationId(request);
   try {
-    const cartId = getCartIdFromCookie(request);
+    const cartIdFromCookie = getCartIdFromCookie(request);
+    const cartId = cartIdFromCookie ?? request.headers.get(CART_HEADER)?.trim() ?? null;
     if (!cartId) {
-      return NextResponse.json({ cart: null });
+      const res = NextResponse.json({ cart: null, meta: { clientMutationId: mutationId } });
+      res.headers.set(MUTATION_HEADER, mutationId);
+      return res;
     }
-    const cart = await getCart(cartId);
+    const cart = await withRetry(() => getCart(cartId), 1);
     if (!cart) {
       const res = NextResponse.json({ cart: null });
+      res.headers.set(MUTATION_HEADER, mutationId);
       res.headers.set("Set-Cookie", clearCartCookie());
       return res;
     }
-    return NextResponse.json({ cart });
+    const res = NextResponse.json({ cart, meta: { clientMutationId: mutationId } });
+    res.headers.set(MUTATION_HEADER, mutationId);
+    if (!cartIdFromCookie) {
+      res.headers.set("Set-Cookie", setCartCookie(cart.id));
+    }
+    return res;
   } catch (error) {
-    console.warn("[API cart GET] reset cookie", error);
+    console.warn("[API cart GET] reset cookie", { mutationId, error });
     const res = NextResponse.json({ cart: null });
+    res.headers.set(MUTATION_HEADER, mutationId);
     res.headers.set("Set-Cookie", clearCartCookie());
     return res;
   }
@@ -55,42 +100,82 @@ export async function GET(request: NextRequest) {
  * Crea carrito o añade línea. Establece cookie y devuelve carrito.
  */
 export async function POST(request: NextRequest) {
+  let body: unknown;
+  let mutationId = getMutationId(request);
   try {
-    const body = await request.json();
-    const variantId = body?.variantId;
-    const quantity = Math.max(1, Math.min(Number(body?.quantity) || 1, 99));
+    body = await request.json();
+    mutationId = getMutationId(request, body);
+    const action = (body as { action?: string })?.action;
 
-    if (!variantId || typeof variantId !== "string") {
-      return NextResponse.json(
-        { error: "variantId es obligatorio" },
-        { status: 400 }
-      );
+    if (action === "ensure-checkout") {
+      const cartId = getCartIdFromRequest(request);
+      if (!cartId) {
+        const res = NextResponse.json(
+          { error: "No hay carrito", meta: { clientMutationId: mutationId } },
+          { status: 400 }
+        );
+        res.headers.set(MUTATION_HEADER, mutationId);
+        return res;
+      }
+
+      const current = await withRetry(() => getCart(cartId), 1);
+      let cart = current;
+
+      if (!cart) {
+        cart = await withRetry(() => createCartWithLines([]), 1);
+      } else if (!cart.checkoutUrl) {
+        const lines = cart.lines.map((line) => ({
+          merchandiseId: line.merchandiseId,
+          quantity: line.quantity,
+        }));
+        cart = await withRetry(() => createCartWithLines(lines), 1);
+      }
+
+      const res = NextResponse.json({ cart, meta: { clientMutationId: mutationId } });
+      res.headers.set(MUTATION_HEADER, mutationId);
+      res.headers.set("Set-Cookie", setCartCookie(cart.id));
+      return res;
     }
 
-    const cartId = getCartIdFromCookie(request);
+    const variantId = (body as { variantId?: string })?.variantId;
+    const quantity = Math.max(1, Math.min(Number((body as { quantity?: number })?.quantity) || 1, 99));
+
+    if (!variantId || typeof variantId !== "string") {
+      const res = NextResponse.json(
+        { error: "variantId es obligatorio", meta: { clientMutationId: mutationId } },
+        { status: 400 }
+      );
+      res.headers.set(MUTATION_HEADER, mutationId);
+      return res;
+    }
+
+    const cartId = getCartIdFromRequest(request);
     let cart: Cart;
 
     if (cartId) {
       try {
-        cart = await addLinesToCart(cartId, variantId, quantity);
+        cart = await withRetry(() => addLinesToCart(cartId, variantId, quantity));
       } catch (e) {
         // Carrito inválido o expirado: crear uno nuevo
-        cart = await createCart(variantId, quantity);
+        cart = await withRetry(() => createCart(variantId, quantity));
       }
     } else {
-      cart = await createCart(variantId, quantity);
+      cart = await withRetry(() => createCart(variantId, quantity));
     }
 
-    const res = NextResponse.json({ cart });
+    const res = NextResponse.json({ cart, meta: { clientMutationId: mutationId } });
+    res.headers.set(MUTATION_HEADER, mutationId);
     res.headers.set("Set-Cookie", setCartCookie(cart.id));
     return res;
   } catch (error) {
     const message = error instanceof Error ? error.message : "Error al actualizar el carrito";
-    console.error("[API cart POST]", error);
-    return NextResponse.json(
-      { error: message },
+    console.error("[API cart POST]", { mutationId, error });
+    const res = NextResponse.json(
+      { error: message, meta: { clientMutationId: mutationId } },
       { status: 400 }
     );
+    res.headers.set(MUTATION_HEADER, mutationId);
+    return res;
   }
 }
 
@@ -99,45 +184,63 @@ export async function POST(request: NextRequest) {
  * Body: { action: 'update' | 'remove', lineId: string, quantity?: number }
  */
 export async function PATCH(request: NextRequest) {
+  let body: unknown;
+  let mutationId = getMutationId(request);
   try {
-    const cartId = getCartIdFromCookie(request);
+    const cartId = getCartIdFromRequest(request);
     if (!cartId) {
-      return NextResponse.json({ error: "No hay carrito" }, { status: 400 });
-    }
-
-    const body = await request.json();
-    const action = body?.action;
-    const lineId = body?.lineId;
-
-    if (!action || !lineId) {
-      return NextResponse.json(
-        { error: "action y lineId son obligatorios" },
+      const res = NextResponse.json(
+        { error: "No hay carrito", meta: { clientMutationId: mutationId } },
         { status: 400 }
       );
+      res.headers.set(MUTATION_HEADER, mutationId);
+      return res;
+    }
+
+    body = await request.json();
+    mutationId = getMutationId(request, body);
+    const action = (body as { action?: string })?.action;
+    const lineId = (body as { lineId?: string })?.lineId;
+
+    if (!action || !lineId) {
+      const res = NextResponse.json(
+        { error: "action y lineId son obligatorios", meta: { clientMutationId: mutationId } },
+        { status: 400 }
+      );
+      res.headers.set(MUTATION_HEADER, mutationId);
+      return res;
     }
 
     let cart: Cart;
 
     if (action === "remove") {
-      cart = await removeCartLine(cartId, lineId);
+      cart = await withRetry(() => removeCartLine(cartId, lineId));
     } else if (action === "update") {
-      const quantity = Math.max(0, Math.min(Number(body?.quantity) ?? 1, 99));
+      const quantity = Math.max(0, Math.min(Number((body as { quantity?: number })?.quantity) ?? 1, 99));
       if (quantity === 0) {
-        cart = await removeCartLine(cartId, lineId);
+        cart = await withRetry(() => removeCartLine(cartId, lineId));
       } else {
-        cart = await updateCartLine(cartId, lineId, quantity);
+        cart = await withRetry(() => updateCartLine(cartId, lineId, quantity));
       }
     } else {
-      return NextResponse.json({ error: "action debe ser update o remove" }, { status: 400 });
+      const res = NextResponse.json(
+        { error: "action debe ser update o remove", meta: { clientMutationId: mutationId } },
+        { status: 400 }
+      );
+      res.headers.set(MUTATION_HEADER, mutationId);
+      return res;
     }
 
-    const res = NextResponse.json({ cart });
+    const res = NextResponse.json({ cart, meta: { clientMutationId: mutationId } });
+    res.headers.set(MUTATION_HEADER, mutationId);
     res.headers.set("Set-Cookie", setCartCookie(cart.id));
     return res;
   } catch (error) {
     const message = error instanceof Error ? error.message : "Error al actualizar el carrito";
-    console.error("[API cart PATCH]", error);
-    return NextResponse.json({ error: message }, { status: 400 });
+    console.error("[API cart PATCH]", { mutationId, error });
+    const res = NextResponse.json({ error: message, meta: { clientMutationId: mutationId } }, { status: 400 });
+    res.headers.set(MUTATION_HEADER, mutationId);
+    return res;
   }
 }
 
@@ -146,7 +249,9 @@ export async function PATCH(request: NextRequest) {
  * Limpia la cookie del carrito (tras compra completada).
  */
 export async function DELETE() {
-  const res = NextResponse.json({ ok: true });
+  const mutationId = `srv_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+  const res = NextResponse.json({ ok: true, meta: { clientMutationId: mutationId } });
+  res.headers.set(MUTATION_HEADER, mutationId);
   res.headers.set("Set-Cookie", clearCartCookie());
   return res;
 }

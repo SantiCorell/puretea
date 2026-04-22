@@ -7,7 +7,7 @@ export default function AddToCartGrid({ product }: { product: any }) {
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { setIsOpen, refreshBadge } = useCart();
+  const { addItem, isAddingVariant } = useCart();
 
   const variantId = product?.variants?.[0]?.id;
 
@@ -22,21 +22,7 @@ export default function AddToCartGrid({ product }: { product: any }) {
     setError(null);
 
     try {
-      // POST to /api/cart — creates or updates a real Shopify cart,
-      // sets puretea_cart_id cookie server-side, returns checkoutUrl.
-      const res = await fetch('/api/cart', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ variantId, quantity }),
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Error al añadir al carrito');
-
-      // Update badge count and open drawer
-      await refreshBadge();
-      setIsOpen(true);
-
+      await addItem({ variantId, quantity, productTitle: product?.title });
     } catch (err) {
       console.error('[AddToCartGrid]', err);
       setError(err instanceof Error ? err.message : 'Error al añadir');
@@ -72,7 +58,7 @@ export default function AddToCartGrid({ product }: { product: any }) {
       <button
         type="button"
         onClick={handleAdd}
-        disabled={loading || !variantId}
+        disabled={loading || !variantId || isAddingVariant(variantId)}
         className="w-full bg-puretea-dark text-puretea-cream text-[11px] uppercase tracking-wider font-bold py-3 rounded-full hover:bg-puretea-organic transition-all shadow-sm active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {loading ? 'Añadiendo...' : 'Añadir al Ritual'}

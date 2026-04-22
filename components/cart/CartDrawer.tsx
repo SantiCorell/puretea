@@ -1,78 +1,28 @@
 'use client';
 
 import { useCart } from '@/context/CartContext';
-import { useEffect, useState, useCallback } from 'react';
 import Image from 'next/image';
-import type { Cart } from '@/lib/shopify/cart';
 
 export default function CartDrawer() {
-  const { isOpen, setIsOpen } = useCart();
-  const [cart, setCart] = useState<Cart | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [checkoutLoading, setCheckoutLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const {
+    isOpen,
+    setIsOpen,
+    cart,
+    isHydrating,
+    isMutating,
+    isCheckingOut,
+    error,
+    refreshBadge,
+    updateLine,
+    removeLine,
+    startCheckout,
+  } = useCart();
 
   const FREE_SHIPPING_THRESHOLD = 50;
   const total = parseFloat(cart?.cost?.totalAmount?.amount ?? '0');
   const remaining = Math.max(0, FREE_SHIPPING_THRESHOLD - total);
   const progressPercentage = Math.min(100, (total / FREE_SHIPPING_THRESHOLD) * 100);
-
-  // Fetch live cart from Shopify via API route whenever drawer opens
-  const fetchCart = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await fetch('/api/cart', { cache: 'no-store' });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Error al cargar el carrito');
-      setCart(data.cart);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Error al cargar el carrito');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (isOpen) fetchCart();
-  }, [isOpen, fetchCart]);
-
-  const updateQuantity = async (lineId: string, quantity: number) => {
-    try {
-      const res = await fetch('/api/cart', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'update', lineId, quantity }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-      setCart(data.cart);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Error al actualizar');
-    }
-  };
-
-  const removeLine = async (lineId: string) => {
-    try {
-      const res = await fetch('/api/cart', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'remove', lineId }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-      setCart(data.cart);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Error al eliminar');
-    }
-  };
-
-  const handleCheckout = () => {
-    if (!cart?.checkoutUrl) return;
-    setCheckoutLoading(true);
-    // Redirect to Shopify-hosted checkout — real URL from Storefront API
-    window.location.href = cart.checkoutUrl;
-  };
+  const loading = isHydrating || isMutating;
 
   if (!isOpen) return null;
 
@@ -137,7 +87,7 @@ export default function CartDrawer() {
           {error && !loading && (
             <div className="text-center py-10">
               <p className="text-red-400 text-sm">{error}</p>
-              <button onClick={fetchCart} className="mt-3 text-puretea-organic underline text-sm">
+              <button onClick={refreshBadge} className="mt-3 text-puretea-organic underline text-sm">
                 Reintentar
               </button>
             </div>
@@ -180,15 +130,17 @@ export default function CartDrawer() {
                   <div className="flex flex-col items-end gap-2">
                     <div className="flex items-center gap-2 border border-puretea-sand/50 rounded-full px-2 py-1">
                       <button
-                        onClick={() => updateQuantity(line.id, line.quantity - 1)}
+                        onClick={() => updateLine(line.id, line.quantity - 1)}
                         className="text-puretea-dark/50 hover:text-puretea-dark font-bold w-5 text-center"
+                        disabled={isMutating}
                       >
                         –
                       </button>
                       <span className="text-xs font-bold w-4 text-center">{line.quantity}</span>
                       <button
-                        onClick={() => updateQuantity(line.id, line.quantity + 1)}
+                        onClick={() => updateLine(line.id, line.quantity + 1)}
                         className="text-puretea-dark/50 hover:text-puretea-dark font-bold w-5 text-center"
+                        disabled={isMutating}
                       >
                         +
                       </button>
@@ -196,6 +148,7 @@ export default function CartDrawer() {
                     <button
                       onClick={() => removeLine(line.id)}
                       className="text-[10px] text-red-300 hover:text-red-500 transition-colors"
+                      disabled={isMutating}
                     >
                       Eliminar
                     </button>
@@ -215,11 +168,11 @@ export default function CartDrawer() {
             </div>
             <button
               type="button"
-              onClick={handleCheckout}
-              disabled={checkoutLoading || !cart?.checkoutUrl}
+              onClick={startCheckout}
+              disabled={isCheckingOut || lines.length === 0}
               className="w-full bg-puretea-dark text-puretea-cream py-4 rounded-full font-bold hover:bg-puretea-organic transition-all shadow-lg active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {checkoutLoading ? 'Redirigiendo...' : 'Finalizar Pedido'}
+              {isCheckingOut ? 'Redirigiendo...' : 'Finalizar Pedido'}
             </button>
             <p className="text-[10px] text-center text-puretea-dark/40 italic">
               {remaining > 0

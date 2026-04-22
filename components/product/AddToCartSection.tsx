@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { AddToCartButton } from './AddToCartButton'; // Adjust path if needed
+import { AddToCartButton } from '@/components/cart/AddToCartButton';
 
 interface ProductProps {
   product: {

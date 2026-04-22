@@ -16,32 +16,25 @@ interface AddToCartButtonProps {
 
 export function AddToCartButton({
   variantId,
+  title,
   quantity = 1,
   disabled = false,
   className = "",
   children,
 }: AddToCartButtonProps) {
-  const { setIsOpen, refreshBadge } = useCart();
+  const { setIsOpen, addItem, isAddingVariant } = useCart();
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const handleAdd = async () => {
-    if (disabled || loading || !variantId) return;
+    if (disabled || loading || isAddingVariant(variantId) || !variantId) return;
     setLoading(true);
     setDone(false);
     setErrorMsg(null);
 
     try {
-      const res = await fetch('/api/cart', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ variantId, quantity }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Error al añadir');
-
-      await refreshBadge();
+      await addItem({ variantId, quantity, productTitle: title });
       setDone(true);
       setIsOpen(true);
       setTimeout(() => setDone(false), 2000);
@@ -59,7 +52,7 @@ export function AddToCartButton({
       <button
         type="button"
         onClick={handleAdd}
-        disabled={disabled || loading}
+        disabled={disabled || loading || isAddingVariant(variantId)}
         className={className}
         aria-label="Añadir al carrito"
       >

@@ -13,25 +13,16 @@ export function QuickAdd({
   const [qty, setQty] = useState(1);
   const [isAdded, setIsAdded] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { setIsOpen, refreshBadge } = useCart();
+  const { addItem, isAddingVariant } = useCart();
 
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
-    if (loading || !variantId) return;
+    if (loading || isAddingVariant(variantId) || !variantId) return;
     setLoading(true);
 
     try {
-      const res = await fetch('/api/cart', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ variantId, quantity: qty }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Error al añadir');
-
-      await refreshBadge();
+      await addItem({ variantId, quantity: qty, productTitle: product?.title });
       setIsAdded(true);
-      setIsOpen(true);
       setTimeout(() => setIsAdded(false), 2000);
     } catch (e) {
       console.error('[QuickAdd]', e);
@@ -69,7 +60,7 @@ export function QuickAdd({
       <button
         type="button"
         onClick={handleAddToCart}
-        disabled={loading}
+        disabled={loading || isAddingVariant(variantId)}
         className={`w-full text-puretea-cream text-[10px] uppercase tracking-widest font-bold py-3 rounded-full transition-all text-center shadow-md active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50 ${
           isAdded ? 'bg-puretea-organic' : 'bg-puretea-dark hover:bg-puretea-organic'
         }`}

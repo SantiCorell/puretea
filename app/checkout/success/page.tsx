@@ -3,23 +3,80 @@
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import { clearCartState } from "@/lib/cart/cartService";
+import { trackPurchase } from "@/lib/tracking/conversion";
 
 const REDIRECT_SECONDS = 10;
+
+interface ConfirmedOrder {
+  orderId: string;
+  orderNumber: string;
+  value: number;
+  currency: string;
+  numItems: number;
+}
 
 function SuccessContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [cleared, setCleared] = useState(false);
+  const [tracked, setTracked] = useState(false);
   const [countdown, setCountdown] = useState(REDIRECT_SECONDS);
+  const [confirmedOrder, setConfirmedOrder] = useState<ConfirmedOrder | null>(null);
 
   const orderId = searchParams.get("order_id") ?? searchParams.get("checkout_id") ?? null;
   const orderNumber = searchParams.get("order_number") ?? null;
 
   useEffect(() => {
     if (cleared) return;
-    // Clearing local cart state if needed
-    fetch("/api/cart", { method: "DELETE" }).catch(() => {}).finally(() => setCleared(true));
+    void clearCartState().catch(() => {}).finally(() => setCleared(true));
   }, [cleared]);
+
+  useEffect(() => {
+    if (tracked) return;
+    if (!orderId) {
+      if (!orderNumber) return;
+      trackPurchase({
+        transaction_id: orderNumber,
+        order_number: orderNumber,
+      });
+      setTracked(true);
+      return;
+    }
+
+    const enrichAndTrack = async () => {
+      try {
+        const res = await fetch(`/api/checkout/confirm?order_id=${encodeURIComponent(orderId)}`, {
+          cache: "no-store",
+        });
+        if (!res.ok) throw new Error("No se pudo confirmar pedido");
+
+        const data = (await res.json()) as { order?: ConfirmedOrder };
+        const order = data.order;
+        if (!order) throw new Error("Pedido sin datos");
+
+        setConfirmedOrder(order);
+        trackPurchase({
+          transaction_id: order.orderNumber || order.orderId,
+          order_id: order.orderId,
+          order_number: order.orderNumber,
+          value: order.value,
+          currency: order.currency,
+          num_items: order.numItems,
+        });
+      } catch {
+        trackPurchase({
+          transaction_id: orderNumber || orderId,
+          order_id: orderId,
+          order_number: orderNumber,
+        });
+      } finally {
+        setTracked(true);
+      }
+    };
+
+    void enrichAndTrack();
+  }, [tracked, orderId, orderNumber]);
 
   useEffect(() => {
     const t = setInterval(() => {
@@ -61,6 +118,16 @@ function SuccessContent() {
             <p className="text-puretea-dark/80">
               <span className="font-medium">ID:</span> {orderId}
             </p>
+          )}
+          {confirmedOrder && (
+            <>
+              <p className="text-puretea-dark/80 mt-2">
+                <span className="font-medium">Total:</span> {confirmedOrder.value.toFixed(2)} {confirmedOrder.currency}
+              </p>
+              <p className="text-puretea-dark/80">
+                <span className="font-medium">Items:</span> {confirmedOrder.numItems}
+              </p>
+            </>
           )}
         </div>
       )}
