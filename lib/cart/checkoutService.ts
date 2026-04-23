@@ -20,6 +20,16 @@ export interface CheckoutRedirectPlan {
   fallbackUrl?: string;
 }
 
+function isLikelyStorefrontLoop(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    const host = parsed.hostname.toLowerCase();
+    return host.endsWith("puretea.es");
+  } catch {
+    return false;
+  }
+}
+
 function safeAbsoluteUrl(rawUrl: string | null | undefined): string | null {
   if (!rawUrl) return null;
   try {
@@ -159,20 +169,29 @@ export async function resolveCheckoutUrlFromCart(cart: Cart | null): Promise<str
 export async function resolveCheckoutRedirectPlanFromCart(
   cart: Cart | null
 ): Promise<CheckoutRedirectPlan> {
-  const url = await resolveCheckoutUrlFromCart(cart);
+  const resolvedUrl = await resolveCheckoutUrlFromCart(cart);
   const myShopifyFallback = buildMyShopifyCheckoutPermalink(cart);
   const rawFallback = safeAbsoluteUrl(cart?.rawCheckoutUrl);
   const fallbackUrl =
-    [myShopifyFallback, rawFallback].find((candidate) => candidate && candidate !== url) ?? undefined;
+    [myShopifyFallback, rawFallback].find((candidate) => candidate && candidate !== resolvedUrl) ?? undefined;
+
+  const useMyShopifyAsPrimary =
+    Boolean(myShopifyFallback) && isLikelyStorefrontLoop(resolvedUrl);
+  const url = useMyShopifyAsPrimary ? (myShopifyFallback as string) : resolvedUrl;
+  const effectiveFallback =
+    [resolvedUrl, rawFallback]
+      .find((candidate) => candidate && candidate !== url) ?? fallbackUrl;
 
   checkoutLog("redirect-plan", {
     primary: url,
+    resolvedUrl,
+    useMyShopifyAsPrimary,
     myShopifyFallback,
     rawFallback,
-    selectedFallback: fallbackUrl ?? null,
+    selectedFallback: effectiveFallback ?? null,
   });
 
-  return { url, fallbackUrl };
+  return { url, fallbackUrl: effectiveFallback };
 }
 
 export function getEmergencyCheckoutFallback(cart: Cart | null): string | null {
