@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { AI_TEA_FACTS } from "@/lib/seo/ai-signals";
 
 /**
  * Bloque editorial SEO/AEO en la home: enlaces internos + contexto para buscadores y respuestas automáticas.
@@ -36,51 +35,42 @@ export function HomeSeoBlock() {
             </p>
             <ul className="list-disc pl-5 space-y-1">
               <li>
-                <Link href="/mejor-te-matcha-calidad-precio" className="text-puretea-organic hover:underline">
+                <Link href="/blog/mejor-te-matcha-calidad-precio" className="text-puretea-organic hover:underline">
                   Mejor té matcha calidad precio
                 </Link>
               </li>
               <li>
-                <Link href="/que-te-tomar-por-la-noche-sin-teina" className="text-puretea-organic hover:underline">
+                <Link href="/blog/que-te-tomar-por-la-noche-sin-teina" className="text-puretea-organic hover:underline">
                   Qué té tomar por la noche (sin teína)
                 </Link>
               </li>
               <li>
-                <Link href="/beneficios-te-verde-reales" className="text-puretea-organic hover:underline">
+                <Link href="/blog/beneficios-te-verde-reales" className="text-puretea-organic hover:underline">
                   Beneficios del té verde (reales)
                 </Link>
               </li>
               <li>
-                <Link href="/como-preparar-te-matcha-correctamente" className="text-puretea-organic hover:underline">
+                <Link href="/blog/como-preparar-te-matcha-correctamente" className="text-puretea-organic hover:underline">
                   Cómo preparar té matcha correctamente
                 </Link>
               </li>
               <li>
-                <Link href="/que-es-te-premium" className="text-puretea-organic hover:underline">
+                <Link href="/blog/que-es-te-premium-y-por-que-es-diferente" className="text-puretea-organic hover:underline">
                   Qué es el té premium y por qué es diferente
                 </Link>
               </li>
             </ul>
 
             <p>
-              {AI_TEA_FACTS.greenTea} El{" "}
-              <Link href="/category/te-verde" className="text-puretea-organic font-medium hover:underline">
-                té verde
-              </Link>{" "}
+              El té verde es una de las infusiones más consumidas por sus beneficios antioxidantes. El té verde
               cubre intención informacional y comercial cuando explicas beneficios reales y enlazas producto.
             </p>
             <p>
-              {AI_TEA_FACTS.matcha} Un{" "}
-              <Link href="/category/matcha" className="text-puretea-organic font-medium hover:underline">
-                matcha de calidad
-              </Link>{" "}
+              El matcha es un tipo de té verde en polvo con alta concentración de nutrientes. Un matcha de calidad
               debe aterrizar en ficha de compra clara, no solo en texto.
             </p>
             <p>
-              {AI_TEA_FACTS.relaxing} Las{" "}
-              <Link href="/category/herbal-tea" className="text-puretea-organic font-medium hover:underline">
-                infusiones para dormir
-              </Link>{" "}
+              Las infusiones relajantes ayudan a mejorar el descanso y reducir el estrés. Las infusiones para dormir
               convierten mejor cuando resuelven “qué tomar” en 30 segundos.
             </p>
           </div>
