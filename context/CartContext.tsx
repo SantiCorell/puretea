@@ -2,7 +2,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import type { Cart } from '@/lib/shopify/cart';
 import { addItemToCart, getCartSnapshot, persistCartLocally, removeCartItem, updateCartItem } from '@/lib/cart/cartService';
-import { resolveCheckoutUrlFromCart } from '@/lib/cart/checkoutService';
+import { resolveCheckoutRedirectPlanFromCart } from '@/lib/cart/checkoutService';
 import { trackAddToCart, trackInitiateCheckout } from '@/lib/tracking/conversion';
 
 interface CartContextType {
@@ -200,26 +200,43 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const startCheckout = useCallback(async () => {
     setIsCheckingOut(true);
     setError(null);
-    const immediateFallbackUrl = cartRef.current?.checkoutUrl ?? null;
+    const immediateFallbackUrl = cartRef.current?.rawCheckoutUrl ?? cartRef.current?.checkoutUrl ?? null;
     try {
       // Espera a que terminen mutaciones en vuelo (adds/updates) antes de construir checkout.
       await mutationQueueRef.current.catch(() => undefined);
       const latestCart = await refreshBadge();
 
-      const checkoutUrl = await resolveCheckoutUrlFromCart(latestCart);
+      const plan = await resolveCheckoutRedirectPlanFromCart(latestCart);
       trackInitiateCheckout({
         value: Number(latestCart?.cost.totalAmount.amount ?? 0),
         currency: latestCart?.cost.totalAmount.currencyCode ?? 'EUR',
         num_items: latestCart?.lines.length ?? 0,
       });
-      window.location.href = checkoutUrl;
+      const currentUrl = window.location.href;
+      window.location.assign(plan.url);
+
+      window.setTimeout(() => {
+        if (window.location.href !== currentUrl) return;
+        if (plan.fallbackUrl && plan.fallbackUrl !== plan.url) {
+          window.location.assign(plan.fallbackUrl);
+          return;
+        }
+        setError("No se pudo abrir el checkout. Reintenta o cambia de red.");
+        setIsCheckingOut(false);
+      }, 2200);
     } catch (e) {
       if (immediateFallbackUrl) {
-        window.location.href = immediateFallbackUrl;
-        return;
+        const currentUrl = window.location.href;
+        window.location.assign(immediateFallbackUrl);
+        window.setTimeout(() => {
+          if (window.location.href !== currentUrl) return;
+          setError("No se pudo abrir el checkout. Reintenta en 10 segundos.");
+          setIsCheckingOut(false);
+        }, 2200);
+      } else {
+        setError(e instanceof Error ? e.message : 'No se pudo iniciar checkout');
+        setIsCheckingOut(false);
       }
-      setError(e instanceof Error ? e.message : 'No se pudo iniciar checkout');
-      setIsCheckingOut(false);
     }
   }, [refreshBadge]);
 

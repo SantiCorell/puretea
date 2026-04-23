@@ -32,6 +32,7 @@ export interface CartCost {
 export interface Cart {
   id: string;
   checkoutUrl: string;
+  rawCheckoutUrl: string;
   lines: CartLine[];
   cost: CartCost;
 }
@@ -125,6 +126,7 @@ function normalizeCart(cart: CartFragmentResult): Cart {
   return {
     id: cart.id,
     checkoutUrl: normalizeCheckoutUrl(cart.checkoutUrl),
+    rawCheckoutUrl: cart.checkoutUrl,
     cost: {
       subtotalAmount: cart.cost.subtotalAmount,
       totalAmount: cart.cost.totalAmount,
