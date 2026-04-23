@@ -2,8 +2,9 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import type { Cart } from '@/lib/shopify/cart';
 import { addItemToCart, getCartSnapshot, persistCartLocally, removeCartItem, updateCartItem } from '@/lib/cart/cartService';
-import { resolveCheckoutRedirectPlanFromCart } from '@/lib/cart/checkoutService';
+import { getEmergencyCheckoutFallback, resolveCheckoutRedirectPlanFromCart } from '@/lib/cart/checkoutService';
 import { trackAddToCart, trackInitiateCheckout } from '@/lib/tracking/conversion';
+import { persistCheckoutDebug } from '@/lib/cart/debug-client';
 
 interface CartContextType {
   isOpen: boolean;
@@ -24,6 +25,13 @@ interface CartContextType {
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
+const CART_CONTEXT_DEBUG = process.env.NODE_ENV !== "production";
+
+function cartUiLog(scope: string, payload: Record<string, unknown>) {
+  if (!CART_CONTEXT_DEBUG) return;
+  persistCheckoutDebug(`[CartContext][${scope}]`, payload);
+  console.info(`[CartContext][${scope}]`, payload);
+}
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -200,13 +208,29 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const startCheckout = useCallback(async () => {
     setIsCheckingOut(true);
     setError(null);
-    const immediateFallbackUrl = cartRef.current?.rawCheckoutUrl ?? cartRef.current?.checkoutUrl ?? null;
+    const immediateFallbackUrl = getEmergencyCheckoutFallback(cartRef.current);
+    cartUiLog("startCheckout:clicked", {
+      lineCount: cartRef.current?.lines.length ?? 0,
+      pendingOps,
+      immediateFallbackUrl,
+    });
     try {
       // Espera a que terminen mutaciones en vuelo (adds/updates) antes de construir checkout.
       await mutationQueueRef.current.catch(() => undefined);
+      cartUiLog("startCheckout:queue-drained", {});
       const latestCart = await refreshBadge();
+      cartUiLog("startCheckout:latest-cart", {
+        cartId: latestCart?.id ?? null,
+        lineCount: latestCart?.lines.length ?? 0,
+        checkoutUrl: latestCart?.checkoutUrl ?? null,
+        rawCheckoutUrl: latestCart?.rawCheckoutUrl ?? null,
+      });
 
       const plan = await resolveCheckoutRedirectPlanFromCart(latestCart);
+      cartUiLog("startCheckout:redirect-plan", {
+        url: plan.url,
+        fallbackUrl: plan.fallbackUrl ?? null,
+      });
       trackInitiateCheckout({
         value: Number(latestCart?.cost.totalAmount.amount ?? 0),
         currency: latestCart?.cost.totalAmount.currencyCode ?? 'EUR',
@@ -214,22 +238,31 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       });
       const currentUrl = window.location.href;
       window.location.assign(plan.url);
+      cartUiLog("startCheckout:navigate-primary", { to: plan.url });
 
       window.setTimeout(() => {
         if (window.location.href !== currentUrl) return;
         if (plan.fallbackUrl && plan.fallbackUrl !== plan.url) {
+          cartUiLog("startCheckout:navigate-fallback", { to: plan.fallbackUrl });
           window.location.assign(plan.fallbackUrl);
           return;
         }
+        cartUiLog("startCheckout:stuck-no-fallback", {});
         setError("No se pudo abrir el checkout. Reintenta o cambia de red.");
         setIsCheckingOut(false);
       }, 2200);
     } catch (e) {
+      cartUiLog("startCheckout:error", {
+        error: e instanceof Error ? e.message : String(e),
+        immediateFallbackUrl,
+      });
       if (immediateFallbackUrl) {
         const currentUrl = window.location.href;
+        cartUiLog("startCheckout:immediate-fallback", { to: immediateFallbackUrl });
         window.location.assign(immediateFallbackUrl);
         window.setTimeout(() => {
           if (window.location.href !== currentUrl) return;
+          cartUiLog("startCheckout:immediate-fallback-failed", {});
           setError("No se pudo abrir el checkout. Reintenta en 10 segundos.");
           setIsCheckingOut(false);
         }, 2200);
@@ -238,7 +271,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         setIsCheckingOut(false);
       }
     }
-  }, [refreshBadge]);
+  }, [refreshBadge, pendingOps]);
 
   const isAddingVariant = useCallback((variantId: string) => {
     return pendingVariantsRef.current.has(variantId);

@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { appendFile } from "node:fs/promises";
+import { join } from "node:path";
 import {
   getCart,
   createCart,
@@ -14,6 +16,16 @@ const CART_MAX_AGE = 60 * 60 * 24; // 1 día
 const CART_HEADER = "x-puretea-cart-id";
 const MUTATION_HEADER = "x-client-mutation-id";
 const RETRY_ATTEMPTS = 2;
+const CART_DEBUG = process.env.NODE_ENV !== "production";
+
+function cartLog(scope: string, payload: Record<string, unknown>) {
+  if (!CART_DEBUG) return;
+  const line = `[API cart][${scope}] ${JSON.stringify(payload)}`;
+  console.info(line);
+  void appendFile(join(process.cwd(), ".checkout-debug.log"), `${new Date().toISOString()} ${line}\n`).catch(
+    () => undefined
+  );
+}
 
 function getCartIdFromCookie(request: NextRequest): string | null {
   return request.cookies.get(CART_COOKIE)?.value ?? null;
@@ -84,6 +96,7 @@ export async function GET(request: NextRequest) {
       return res;
     }
     const cart = await withRetry(() => getCart(cartId), 1);
+    cartLog("GET:resolved", { mutationId, cartId, lineCount: cart?.lines.length ?? 0 });
     if (!cart) {
       const res = NextResponse.json({ cart: null });
       res.headers.set(MUTATION_HEADER, mutationId);
@@ -117,9 +130,11 @@ export async function POST(request: NextRequest) {
     body = await request.json();
     mutationId = getMutationId(request, body);
     const action = (body as { action?: string })?.action;
+    cartLog("POST:incoming", { mutationId, action: action ?? "add-line" });
 
     if (action === "ensure-checkout") {
       const cartId = getCartIdFromRequest(request);
+      cartLog("POST:ensure-checkout:start", { mutationId, cartId });
       if (!cartId) {
         const res = NextResponse.json(
           { error: "No hay carrito", meta: { clientMutationId: mutationId } },
@@ -154,8 +169,20 @@ export async function POST(request: NextRequest) {
           return res;
         }
         cart = await withRetry(() => createCartWithLines(lines), 1);
+        cartLog("POST:ensure-checkout:recreated", {
+          mutationId,
+          previousCartId: cartId,
+          newCartId: cart.id,
+          lineCount: cart.lines.length,
+        });
       }
 
+      cartLog("POST:ensure-checkout:success", {
+        mutationId,
+        cartId: cart.id,
+        lineCount: cart.lines.length,
+        checkoutUrl: cart.checkoutUrl,
+      });
       const res = NextResponse.json({ cart, meta: { clientMutationId: mutationId } });
       res.headers.set(MUTATION_HEADER, mutationId);
       res.headers.set("Set-Cookie", setCartCookie(cart.id));
@@ -192,6 +219,14 @@ export async function POST(request: NextRequest) {
       cart = await withRetry(() => createCart(variantId, quantity));
     }
 
+    cartLog("POST:add-line:success", {
+      mutationId,
+      cartId: cart.id,
+      lineCount: cart.lines.length,
+      variantId,
+      quantity,
+      checkoutUrl: cart.checkoutUrl,
+    });
     const res = NextResponse.json({ cart, meta: { clientMutationId: mutationId } });
     res.headers.set(MUTATION_HEADER, mutationId);
     res.headers.set("Set-Cookie", setCartCookie(cart.id));
@@ -230,6 +265,7 @@ export async function PATCH(request: NextRequest) {
     mutationId = getMutationId(request, body);
     const action = (body as { action?: string })?.action;
     const lineId = (body as { lineId?: string })?.lineId;
+    cartLog("PATCH:incoming", { mutationId, action, lineId });
 
     if (!action || !lineId) {
       const res = NextResponse.json(
@@ -261,6 +297,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     const res = NextResponse.json({ cart, meta: { clientMutationId: mutationId } });
+    cartLog("PATCH:success", { mutationId, cartId: cart.id, lineCount: cart.lines.length });
     res.headers.set(MUTATION_HEADER, mutationId);
     res.headers.set("Set-Cookie", setCartCookie(cart.id));
     return res;
