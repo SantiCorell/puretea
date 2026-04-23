@@ -54,6 +54,211 @@ export const SEO_LANDINGS_DATA: SeoLanding[] = [
     ...shopCta,
   },
   {
+    slug: "mejor-te-matcha-calidad-precio",
+    title: "Mejor té matcha calidad precio | Guía de compra 2026 | PureTea",
+    description:
+      "Cómo elegir el mejor té matcha calidad precio: grado, origen, sabor y señales reales para comprar sin fallar. PureTea.",
+    priority: 0.92,
+    changeFrequency: "weekly",
+    h1: "Mejor té matcha calidad precio",
+    intro:
+      "Si buscas el mejor matcha calidad precio, no te fijes solo en el coste por lata: importa el grado, el origen y cómo se comporta en taza. Aquí tienes una guía directa para comprar matcha online sin sorpresas.",
+    sections: [
+      {
+        h2: "Respuesta rápida: qué mirar primero",
+        html: `<p><strong>1)</strong> Origen Japón confirmado. <strong>2)</strong> Grado ceremonial o premium para beber. <strong>3)</strong> Color verde vivo, sin tonos apagados. <strong>4)</strong> Precio coherente (ni sospechosamente bajo ni inflado sin trazabilidad).</p>`,
+      },
+      {
+        h2: "Cómo comparar calidad/precio de verdad",
+        html: `<p>Dos botes pueden costar parecido y rendir distinto. Compara gramos por ración, capacidad de espumar y amargor. Un matcha barato que obliga a endulzar siempre suele salir más caro en experiencia y en consumo.</p><p>En PureTea priorizamos perfiles aptos para taza diaria: umami limpio, textura fina y consistencia entre lotes.</p>`,
+      },
+      {
+        h2: "Compra recomendada según uso",
+        html: `<p>Para ritual diario: <a href="/category/matcha">matcha ceremonial/premium</a>. Para recetas: puedes usar un grado más culinario, pero si también lo vas a beber, mejor premium.</p><p>Amplía con <a href="/como-preparar-te-matcha-correctamente">cómo preparar matcha correctamente</a> para no perder calidad por técnica.</p>`,
+      },
+    ],
+    faqs: [
+      {
+        question: "¿Cuál es el mejor matcha calidad precio para empezar?",
+        answer: "Uno de grado ceremonial o premium, de origen japonés y en formato pequeño para validar sabor y tolerancia antes de subir de formato.",
+      },
+      {
+        question: "¿El matcha muy barato merece la pena?",
+        answer: "Para beber a diario suele decepcionar: más amargor y menos textura. En recetas puede servir, pero no como matcha de taza.",
+      },
+    ],
+    relatedLinks: [
+      { href: "/category/matcha", label: "Comprar matcha" },
+      { href: "/te-matcha-japones-premium", label: "Matcha japonés premium" },
+      { href: "/blog/comprar-matcha-online-calidad", label: "Comprar matcha online" },
+    ],
+    ...shopCta,
+  },
+  {
+    slug: "que-te-tomar-por-la-noche-sin-teina",
+    title: "Qué té tomar por la noche (sin teína) | Guía práctica | PureTea",
+    description:
+      "Descubre qué té o infusión tomar por la noche sin teína para descansar mejor. Opciones suaves y cómo elegir según tu rutina.",
+    priority: 0.9,
+    changeFrequency: "weekly",
+    h1: "Qué té tomar por la noche (sin teína)",
+    intro:
+      "Por la noche conviene evitar estimulantes. Lo más efectivo suele ser una infusión sin teína con sabor suave y rutina estable de consumo.",
+    sections: [
+      {
+        h2: "Respuesta rápida: las mejores opciones nocturnas",
+        html: `<p>Manzanilla, lavanda, melisa, rooibos y blends de relax sin cafeína. Si eres sensible, evita verde, negro y matcha al final del día.</p>`,
+      },
+      {
+        h2: "Cómo elegir según tu objetivo",
+        html: `<p>Si buscas desconexión mental: lavanda/melisa. Si quieres digestión ligera tras cena: hinojo/menta suave. Si quieres ritual diario con sabor redondo: rooibos o blends wellness.</p>`,
+      },
+      {
+        h2: "Qué comprar y cómo prepararlo",
+        html: `<p>Empieza con <a href="/category/herbal-tea">infusiones sin cafeína</a> y usa agua caliente sin hervir en exceso para no volverlas ásperas. Puedes ampliar en <a href="/te-para-dormir-relajacion">té para dormir y relajación</a>.</p>`,
+      },
+    ],
+    faqs: [
+      {
+        question: "¿El rooibos tiene teína?",
+        answer: "No. El rooibos es una infusión sin teína y suele ser una opción cómoda para la noche.",
+      },
+      {
+        question: "¿Puedo tomar té verde de noche?",
+        answer: "Depende de tu sensibilidad, pero en general no es lo ideal porque contiene cafeína.",
+      },
+    ],
+    relatedLinks: [
+      { href: "/category/herbal-tea", label: "Infusiones sin teína" },
+      { href: "/te-para-dormir-relajacion", label: "Té para dormir" },
+      { href: "/blog/herbal-teas-for-sleep", label: "Guía de infusiones nocturnas" },
+    ],
+    ...shopCta,
+  },
+  {
+    slug: "beneficios-te-verde-reales",
+    title: "Beneficios del té verde (reales) | Qué dice la evidencia | PureTea",
+    description:
+      "Beneficios reales del té verde: antioxidantes, hábitos y expectativas honestas. Guía clara para decidir qué comprar.",
+    priority: 0.9,
+    changeFrequency: "monthly",
+    h1: "Beneficios del té verde (reales)",
+    intro:
+      "El té verde sí tiene beneficios potenciales, pero conviene separar evidencia sólida de promesas exageradas. Esta guía resume lo útil y accionable.",
+    sections: [
+      {
+        h2: "Respuesta rápida: qué aporta el té verde",
+        html: `<p>Polifenoles (como catequinas), hidratación con sabor y una estimulación más suave que otras bebidas si se prepara bien.</p>`,
+      },
+      {
+        h2: "Qué no esperar",
+        html: `<p>No es una cura ni un atajo mágico. Funciona mejor como hábito constante dentro de una dieta equilibrada, descanso y actividad física.</p>`,
+      },
+      {
+        h2: "Cómo elegir uno de calidad",
+        html: `<p>Busca origen claro y hojas limpias. Entra en <a href="/category/green-tea">té verde</a> para comparar opciones. Si quieres más intensidad antioxidante, revisa <a href="/category/matcha">matcha</a>.</p>`,
+      },
+    ],
+    faqs: [
+      {
+        question: "¿Cuántas tazas de té verde al día?",
+        answer: "En población general, 1 a 3 tazas suele ser un rango común, ajustando según tolerancia a cafeína.",
+      },
+      {
+        question: "¿Tomarlo en ayunas es buena idea?",
+        answer: "Depende de cada persona. Si notas molestias, mejor acompañarlo con algo ligero.",
+      },
+    ],
+    relatedLinks: [
+      { href: "/category/green-tea", label: "Comprar té verde" },
+      { href: "/beneficios-te-verde-salud", label: "Guía completa salud" },
+      { href: "/blog/antioxidants-in-tea-science", label: "Antioxidantes y ciencia" },
+    ],
+    ...shopCta,
+  },
+  {
+    slug: "como-preparar-te-matcha-correctamente",
+    title: "Cómo preparar té matcha correctamente (paso a paso) | PureTea",
+    description:
+      "Guía paso a paso para preparar matcha correctamente: temperatura, proporciones y errores típicos. Resultado suave y sin grumos.",
+    priority: 0.89,
+    changeFrequency: "monthly",
+    h1: "Cómo preparar té matcha correctamente",
+    intro:
+      "Preparar matcha bien no es complicado: necesitas buena materia prima y técnica básica. Aquí tienes el método corto para una taza limpia y cremosa.",
+    sections: [
+      {
+        h2: "Respuesta rápida: método en 60 segundos",
+        html: `<p>1) Tamiza 1–2 g de matcha. 2) Añade un poco de agua a 75–80°C y forma pasta. 3) Completa con agua y bate en W o M con chasen hasta espumar.</p>`,
+      },
+      {
+        h2: "Errores que arruinan el matcha",
+        html: `<p>Agua hirviendo, no tamizar, proporciones excesivas y batido corto. Cualquiera de esos puntos aumenta amargor y grumos.</p>`,
+      },
+      {
+        h2: "Qué matcha usar para que salga bien",
+        html: `<p>Usa matcha ceremonial/premium para beber. Puedes verlo en <a href="/category/matcha">la categoría matcha</a> y ampliar en la guía de <a href="/te-matcha-japones-premium">matcha japonés premium</a>.</p>`,
+      },
+    ],
+    faqs: [
+      {
+        question: "¿Qué temperatura exacta uso para matcha?",
+        answer: "Entre 75°C y 80°C. Más caliente suele aumentar amargor.",
+      },
+      {
+        question: "¿Necesito chasen sí o sí?",
+        answer: "No obligatorio, pero mejora mucho el resultado. Si no tienes, usa batidor pequeño y tamiza bien.",
+      },
+    ],
+    relatedLinks: [
+      { href: "/category/matcha", label: "Comprar matcha" },
+      { href: "/como-preparar-te-matcha", label: "Otra guía de preparación" },
+      { href: "/blog/how-to-prepare-matcha-properly", label: "Tutorial blog" },
+    ],
+    ...shopCta,
+  },
+  {
+    slug: "que-es-te-premium",
+    title: "Qué es el té premium y por qué es diferente | PureTea",
+    description:
+      "Qué significa realmente té premium: origen, cosecha, procesado y trazabilidad. Cómo identificar calidad al comprar.",
+    priority: 0.88,
+    changeFrequency: "monthly",
+    h1: "Qué es el té premium y por qué es diferente",
+    intro:
+      "Té premium no es solo marketing: se nota en origen, selección de hoja, consistencia de lote y experiencia real en taza.",
+    sections: [
+      {
+        h2: "Respuesta rápida: claves del té premium",
+        html: `<p>Origen verificable, hojas bien seleccionadas, procesado cuidado, frescura y ficha transparente. Si no puedes rastrear calidad, no es premium.</p>`,
+      },
+      {
+        h2: "Qué cambia en la experiencia",
+        html: `<p>Mejor aroma, menor aspereza, más estabilidad de sabor entre preparaciones y más margen de error en la técnica.</p>`,
+      },
+      {
+        h2: "Cómo comprar sin caer en etiquetas vacías",
+        html: `<p>Lee ficha, origen y recomendaciones de uso. Explora <a href="/shop">la tienda</a> y compara categorías: <a href="/category/matcha">matcha</a>, <a href="/category/green-tea">verde</a> e <a href="/category/herbal-tea">infusiones</a>.</p>`,
+      },
+    ],
+    faqs: [
+      {
+        question: "¿Té premium significa siempre más caro?",
+        answer: "No siempre, pero raramente será el más barato. El precio debe tener coherencia con origen y calidad de hoja.",
+      },
+      {
+        question: "¿Cómo noto diferencia en casa?",
+        answer: "Con buena preparación, notarás más limpieza de sabor, menos amargor sucio y mejor persistencia aromática.",
+      },
+    ],
+    relatedLinks: [
+      { href: "/comprar-te", label: "Comprar té online" },
+      { href: "/te-importacion-directa", label: "Importación y trazabilidad" },
+      { href: "/regalos-te-originales", label: "Selección premium para regalo" },
+    ],
+    ...shopCta,
+  },
+  {
     slug: "te-matcha-japones-premium",
     title: "Té matcha japonés premium | Comprar matcha ceremonial online | PureTea",
     description:

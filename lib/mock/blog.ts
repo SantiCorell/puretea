@@ -192,6 +192,80 @@ Para un resultado elegante, enfría la infusión en frío y evita endulzar en ex
 
 export const BLOG_POSTS: BlogPost[] = [
   {
+    slug: "mejor-te-matcha-calidad-precio",
+    title: "Mejor té matcha calidad precio: guía real para comprar bien",
+    excerpt:
+      "Cómo comparar matcha por calidad/precio sin caer en marketing: grado, origen, sabor y rendimiento por taza.",
+    content:
+      "<p>Si vas a invertir en matcha, compara bien: un precio bajo no siempre significa ahorro real. Esta guía te ayuda a elegir con criterio.</p>" +
+      LONG.buyMatchaOnline +
+      LONG.ceremonialVsCulinary,
+    image:
+      "https://images.unsplash.com/photo-1515823064-d6e0c04616a7?auto=format&fit=crop&w=1600&q=80",
+    date: "2026-04-22",
+    category: "Matcha",
+    relatedProducts: ["ceremonial-matcha"],
+  },
+  {
+    slug: "que-te-tomar-por-la-noche-sin-teina",
+    title: "Qué té tomar por la noche (sin teína): opciones que sí funcionan",
+    excerpt:
+      "Infusiones nocturnas sin teína para descansar mejor: qué elegir, cuándo tomarlo y cómo crear ritual.",
+    content:
+      "<p>Por la noche conviene bajar estímulo y mantener una rutina estable. Estas son las opciones de infusión más útiles para cerrar el día.</p>" +
+      LONG.herbalSleep +
+      LONG.herbalRelaxBuy,
+    image:
+      "https://images.unsplash.com/photo-1558160074-4d7d8bdf4256?auto=format&fit=crop&w=1600&q=80",
+    date: "2026-04-22",
+    category: "Wellness",
+    relatedProducts: ["relax-blend", "chamomile-lavender"],
+  },
+  {
+    slug: "beneficios-te-verde-reales",
+    title: "Beneficios del té verde (reales): lo útil y lo que es humo",
+    excerpt:
+      "Qué beneficios del té verde tienen base real y cómo usarlo en tu rutina sin expectativas irreales.",
+    content:
+      "<p>El té verde tiene evidencia interesante, pero conviene separar hechos de promesas exageradas. Aquí tienes una guía clara.</p>" +
+      LONG.greenTeaHealthDeep +
+      LONG.antioxidantsScience,
+    image:
+      "https://images.unsplash.com/photo-1594631661960-1b8f88d2f778?auto=format&fit=crop&w=1600&q=80",
+    date: "2026-04-22",
+    category: "Salud",
+    relatedProducts: ["sencha-organic", "ceremonial-matcha"],
+  },
+  {
+    slug: "como-preparar-te-matcha-correctamente",
+    title: "Cómo preparar té matcha correctamente (paso a paso)",
+    excerpt:
+      "Temperatura, batido y proporciones para un matcha suave, sin grumos y sin amargor.",
+    content:
+      "<p>Un buen matcha necesita técnica mínima y materia prima correcta. Con este paso a paso tendrás una taza limpia desde el primer día.</p>" +
+      LONG.howToMatcha,
+    image:
+      "https://images.unsplash.com/photo-1541167760496-1628856ab772?auto=format&fit=crop&w=1600&q=80",
+    date: "2026-04-22",
+    category: "Matcha",
+    relatedProducts: ["ceremonial-matcha"],
+  },
+  {
+    slug: "que-es-te-premium-y-por-que-es-diferente",
+    title: "Qué es el té premium y por qué es diferente",
+    excerpt:
+      "Origen, trazabilidad y experiencia en taza: cómo identificar té premium de verdad al comprar online.",
+    content:
+      "<p>No todo lo que dice premium lo es. Estas señales te ayudan a identificar calidad real y comprar mejor.</p>" +
+      LONG.buyTeaOnlineGuide +
+      LONG.teaGiftIdeas,
+    image:
+      "https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=1600&q=80",
+    date: "2026-04-22",
+    category: "Comprar té",
+    relatedProducts: ["ceremonial-matcha", "sencha-organic"],
+  },
+  {
     slug: "benefits-of-matcha",
     title: "Beneficios del matcha: por qué incorporarlo a tu rutina",
     excerpt: "El matcha es mucho más que un té: energía calmada, antioxidantes y ritual. Guía experta con ciencia y consejos para el día a día.",
@@ -347,7 +421,8 @@ export const BLOG_POSTS: BlogPost[] = [
     content:
       "<p>El matcha viral está en todas partes, pero la mayoría de recetas fallan por una base pobre o mala técnica. Aquí tienes las 3 que mejor convierten sabor, salud y estética.</p>" +
       LONG.matchaRecipesTrend,
-    image: "/images/blog/how-to-matcha.png",
+    image:
+      "https://images.unsplash.com/photo-1523906834658-6e24ef2386f9?auto=format&fit=crop&w=1600&q=80",
     date: "2026-04-22",
     category: "Tendencias",
     faqs: [
@@ -370,7 +445,8 @@ export const BLOG_POSTS: BlogPost[] = [
     content:
       "<p>Si quieres una alternativa elegante al alcohol, los tea mocktails son la tendencia más fuerte de bienestar social. Aquí tienes guía práctica para montarlo en casa.</p>" +
       LONG.teaMocktailsTrend,
-    image: "/images/blog/earl-grey.png",
+    image:
+      "https://images.unsplash.com/photo-1464306076886-da185f6a9d05?auto=format&fit=crop&w=1600&q=80",
     date: "2026-04-21",
     category: "Tendencias",
     relatedProducts: ["earl-grey-premium", "sencha-organic", "chamomile-lavender"],

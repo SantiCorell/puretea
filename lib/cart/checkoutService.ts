@@ -43,7 +43,11 @@ function normalizeCheckoutUrl(rawUrl: string | null | undefined): string | null 
   if (!rawUrl) return null;
   try {
     const parsed = new URL(rawUrl);
-    parsed.host = process.env.NEXT_PUBLIC_CHECKOUT_DOMAIN?.trim() || CHECKOUT_HOST;
+    const forcedHost =
+      process.env.NEXT_PUBLIC_CHECKOUT_DOMAIN?.trim() ||
+      process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN?.trim() ||
+      CHECKOUT_HOST;
+    parsed.host = forcedHost;
     return parsed.toString();
   } catch {
     return null;
@@ -69,7 +73,7 @@ function buildMyShopifyCheckoutPermalink(cart: Cart | null): string | null {
     .filter((entry): entry is string => Boolean(entry));
 
   if (!lines.length) return null;
-  return `https://${shopDomain}/cart/${lines.join(",")}`;
+  return `https://${shopDomain}/cart/${lines.join(",")}?checkout`;
 }
 
 async function ensureCheckoutByApi(): Promise<Cart> {

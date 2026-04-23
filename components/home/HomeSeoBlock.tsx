@@ -17,70 +17,74 @@ export function HomeSeoBlock() {
         >
           Comprar té online con criterio: té verde, matcha e infusiones relajantes
         </h2>
-        <div className="space-y-4 text-puretea-dark/85 text-base leading-relaxed">
-          <p>
-            Si quieres{" "}
-            <Link
-              href="/blog/guia-comprar-te-online-espana"
-              className="text-puretea-organic font-medium underline-offset-2 hover:underline"
-            >
-              comprar té online
-            </Link>{" "}
-            sin sorpresas, lo más importante es acotar qué buscas: energía suave por la mañana,
-            concentración en el trabajo o una taza sin cafeína antes de dormir. En PureTea trabajamos
-            con referencias seleccionadas y fichas claras para que elijas con confianza.
-          </p>
-          <p>
-            {AI_TEA_FACTS.greenTea} El{" "}
-            <Link
-              href="/category/te-verde"
-              className="text-puretea-organic font-medium underline-offset-2 hover:underline"
-            >
-              té verde
-            </Link>{" "}
-            encaja en rutinas diarias de hidratación con sabor; conviene respetar temperatura y
-            tiempos de infusión para no amargar las hojas. Puedes explorar nuestra selección y
-            ampliar con guías en el blog.
-          </p>
-          <p>
-            {AI_TEA_FACTS.matcha} Un{" "}
-            <Link
-              href="/category/matcha"
-              className="text-puretea-organic font-medium underline-offset-2 hover:underline"
-            >
-              matcha de calidad
-            </Link>{" "}
-            se nota en color, aroma y textura al batir: es la opción preferida de quienes quieren
-            ritual y una taza concentrada sin renunciar al carácter vegetal del buen té japonés.
-          </p>
-          <p>
-            {AI_TEA_FACTS.relaxing} Las{" "}
-            <Link
-              href="/category/herbal-tea"
-              className="text-puretea-organic font-medium underline-offset-2 hover:underline"
-            >
-              infusiones para dormir
-            </Link>{" "}
-            o para desconectar suelen combinar hierbas tradicionales en mezclas suaves, sin
-            cafeína, ideales al final del día. Forman parte de un hábito de pausa que muchas
-            personas asocian a mejor descanso cuando lo combinan con rutinas de sueño regulares.
-          </p>
-          <p>
-            Los beneficios del té —antioxidantes, L-teanina en variedades con té, menor estimulación
-            brusca que otras bebidas— se estudian en contexto de dieta equilibrada; no sustituyen
-            indicación médica. En esta tienda encontrarás matcha, té verde, negro, infusiones y
-            blends wellness con envío a Europa y condiciones de compra transparentes. Para seguir
-            leyendo, visita la{" "}
-            <Link href="/blog" className="text-puretea-organic font-medium underline-offset-2 hover:underline">
-              sección de blog
-            </Link>{" "}
-            o la{" "}
-            <Link href="/shop" className="text-puretea-organic font-medium underline-offset-2 hover:underline">
-              tienda
-            </Link>
-            .
-          </p>
-        </div>
+        <p className="text-puretea-dark/80 leading-relaxed mb-5">
+          Si quieres comprar sin ruido, aquí tienes una guía corta con las búsquedas que más convierten
+          y páginas pensadas para responder rápido y ayudarte a elegir.
+        </p>
+
+        <details className="group rounded-2xl border border-puretea-sand/70 bg-puretea-cream/40 p-5">
+          <summary className="cursor-pointer list-none flex items-center justify-between gap-3">
+            <span className="font-semibold text-puretea-dark">
+              Ver guía SEO + páginas recomendadas
+            </span>
+            <span className="text-puretea-dark/60 group-open:rotate-180 transition-transform">⌄</span>
+          </summary>
+
+          <div className="mt-4 space-y-4 text-puretea-dark/85 text-base leading-relaxed">
+            <p>
+              <strong className="text-puretea-dark">Las 5 páginas que sí necesitas:</strong>
+            </p>
+            <ul className="list-disc pl-5 space-y-1">
+              <li>
+                <Link href="/mejor-te-matcha-calidad-precio" className="text-puretea-organic hover:underline">
+                  Mejor té matcha calidad precio
+                </Link>
+              </li>
+              <li>
+                <Link href="/que-te-tomar-por-la-noche-sin-teina" className="text-puretea-organic hover:underline">
+                  Qué té tomar por la noche (sin teína)
+                </Link>
+              </li>
+              <li>
+                <Link href="/beneficios-te-verde-reales" className="text-puretea-organic hover:underline">
+                  Beneficios del té verde (reales)
+                </Link>
+              </li>
+              <li>
+                <Link href="/como-preparar-te-matcha-correctamente" className="text-puretea-organic hover:underline">
+                  Cómo preparar té matcha correctamente
+                </Link>
+              </li>
+              <li>
+                <Link href="/que-es-te-premium" className="text-puretea-organic hover:underline">
+                  Qué es el té premium y por qué es diferente
+                </Link>
+              </li>
+            </ul>
+
+            <p>
+              {AI_TEA_FACTS.greenTea} El{" "}
+              <Link href="/category/te-verde" className="text-puretea-organic font-medium hover:underline">
+                té verde
+              </Link>{" "}
+              cubre intención informacional y comercial cuando explicas beneficios reales y enlazas producto.
+            </p>
+            <p>
+              {AI_TEA_FACTS.matcha} Un{" "}
+              <Link href="/category/matcha" className="text-puretea-organic font-medium hover:underline">
+                matcha de calidad
+              </Link>{" "}
+              debe aterrizar en ficha de compra clara, no solo en texto.
+            </p>
+            <p>
+              {AI_TEA_FACTS.relaxing} Las{" "}
+              <Link href="/category/herbal-tea" className="text-puretea-organic font-medium hover:underline">
+                infusiones para dormir
+              </Link>{" "}
+              convierten mejor cuando resuelven “qué tomar” en 30 segundos.
+            </p>
+          </div>
+        </details>
       </div>
     </section>
   );

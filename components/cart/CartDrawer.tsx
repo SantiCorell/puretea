@@ -117,6 +117,7 @@ export default function CartDrawer() {
                         src={line.product.imageUrl}
                         alt={line.product.title}
                         fill
+                        sizes="80px"
                         className="object-cover"
                       />
                     )}
