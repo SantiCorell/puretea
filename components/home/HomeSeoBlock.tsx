@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 /**
- * Bloque editorial SEO/AEO en la home: enlaces internos + contexto para buscadores y respuestas automáticas.
+ * Guía editorial para ayudar a descubrir productos desde la home.
  */
 export function HomeSeoBlock() {
   return (
@@ -10,28 +10,25 @@ export function HomeSeoBlock() {
       aria-labelledby="home-seo-editorial-heading"
     >
       <div className="max-w-3xl mx-auto">
-        <h2
-          id="home-seo-editorial-heading"
-          className="font-canela text-2xl sm:text-3xl text-puretea-dark mb-6"
-        >
-          Comprar té online con criterio: té verde, matcha e infusiones relajantes
+        <h2 id="home-seo-editorial-heading" className="font-canela text-2xl sm:text-3xl text-puretea-dark mb-6">
+          Elige tu té ideal en 2 minutos
         </h2>
         <p className="text-puretea-dark/80 leading-relaxed mb-5">
-          Si quieres comprar sin ruido, aquí tienes una guía corta con las búsquedas que más convierten
-          y páginas pensadas para responder rápido y ayudarte a elegir.
+          Si no sabes por dónde empezar, aquí tienes 5 guías claras para elegir mejor según tu momento del día
+          y tus gustos.
         </p>
 
         <details className="group rounded-2xl border border-puretea-sand/70 bg-puretea-cream/40 p-5">
-          <summary className="cursor-pointer list-none flex items-center justify-between gap-3">
+          <summary className="cursor-pointer list-none flex items-center justify-between gap-3 marker:content-none">
             <span className="font-semibold text-puretea-dark">
-              Ver guía SEO + páginas recomendadas
+              Ver guías recomendadas
             </span>
             <span className="text-puretea-dark/60 group-open:rotate-180 transition-transform">⌄</span>
           </summary>
 
           <div className="mt-4 space-y-4 text-puretea-dark/85 text-base leading-relaxed">
             <p>
-              <strong className="text-puretea-dark">Las 5 páginas que sí necesitas:</strong>
+              <strong className="text-puretea-dark">Empieza por estas 5 lecturas:</strong>
             </p>
             <ul className="list-disc pl-5 space-y-1">
               <li>
@@ -62,16 +59,16 @@ export function HomeSeoBlock() {
             </ul>
 
             <p>
-              El té verde es una de las infusiones más consumidas por sus beneficios antioxidantes. El té verde
-              cubre intención informacional y comercial cuando explicas beneficios reales y enlazas producto.
+              Si buscas equilibrio entre sabor y bienestar, el té verde suele ser un gran punto de partida:
+              suave, versátil y fácil de integrar en tu rutina diaria.
             </p>
             <p>
-              El matcha es un tipo de té verde en polvo con alta concentración de nutrientes. Un matcha de calidad
-              debe aterrizar en ficha de compra clara, no solo en texto.
+              El matcha es ideal si quieres un ritual más intenso y una energía más sostenida. La diferencia real
+              está en la calidad del origen y en prepararlo bien.
             </p>
             <p>
-              Las infusiones relajantes ayudan a mejorar el descanso y reducir el estrés. Las infusiones para dormir
-              convierten mejor cuando resuelven “qué tomar” en 30 segundos.
+              Para la noche, las infusiones relajantes sin teína son la opción más cómoda para desconectar sin
+              renunciar al placer de una taza caliente.
             </p>
           </div>
         </details>
